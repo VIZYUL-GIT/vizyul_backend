@@ -1,0 +1,23 @@
+.file-list{
+  display: flex;  
+  padding: 20px;
+  
+  .file-count{
+    padding: 20px;
+    border: 2px solid gray;
+    margin: 0 10px;
+  }
+}
+.upload-file-wrapper{
+  border: '1px solid black';
+
+  .drag-wrapper{
+    position: relative;
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 50px;
+    border: 1px solid gray;
+  }
+}
+

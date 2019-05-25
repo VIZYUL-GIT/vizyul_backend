@@ -6,24 +6,29 @@ const { FILES_PATH } = require('../config/path')
 
 const create = async (req, res) => {
     console.log('FILES_PATH', FILES_PATH)
-    if (req.file) {   
-        const file = new File({
-            name: req.file.filename,
-            type: 'image'
-        })
-        await file.save()
-        return res.send({
-            status: true,
-            data: {
-                file_name: req.file.filename,
-                url: urls.FILE_URL + req.file.filename
-            }
-        })
-    }else{
-        res.status(500).send({
-            status: false,
-            error: 'Internal_server_error'
-        })
+    try {
+        if (req.file) {   
+            const file = new File({
+                name: req.file.filename,
+                type: 'image'
+            })
+            await file.save()
+            return res.send({
+                status: true,
+                data: {
+                    file_name: req.file.filename,
+                    url: urls.FILE_URL + req.file.filename
+                }
+            })
+        } else {
+            console.log(Object.keys(req), req.body);
+            res.status(500).send({
+                status: false,
+                error: 'Internal_server_error (b)'
+            })
+        }
+    } catch (err) {
+        console.log(err);
     }
 }
 

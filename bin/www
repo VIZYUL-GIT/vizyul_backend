@@ -6,7 +6,7 @@
 
 const app         = require('../app');
 
-const debug       = require('debug')('myapp:server');
+const debug       = require('debug')('vizyul:server');
 const http        = require('http');
 
 const mongoose = require('mongoose');
@@ -15,22 +15,8 @@ const mongoose = require('mongoose');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '5000');
 app.set('port', port);
-
-const { DB_PORT } = require('../config/database');
-
-var uristring = process.env.MONGO_URI || DB_PORT;
-
-/**
- * Connect Monogo Database.
- */
-
- 
-
-mongoose.connect(uristring, {useNewUrlParser: true})
-.then(() => console.log('Connecting to database successful'))
-.catch(err => console.error('Could not connect to mongo DB', err))
 
 /**
  * Create HTTP server.
@@ -41,6 +27,7 @@ var server = http.createServer(app);
 /**
  * Listen on provided port, on all network interfaces.
  */
+
 
 server.listen(port);
 server.on('error', onError);
@@ -92,6 +79,7 @@ function onError(error) {
       process.exit(1);
       break;
     default:
+      console.error('error here')
       throw error;
   }
 }
@@ -105,6 +93,5 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  console.log('App listening on', bind);
   debug('Listening on ' + bind);
 }

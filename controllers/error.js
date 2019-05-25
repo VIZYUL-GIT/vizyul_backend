@@ -6,7 +6,7 @@ const catchError = (callback) => {
         console.error(e)
         res.status(500).send({
           status: false,
-          error: 'internal_server_error'
+          error: 'internal_server_error (a)'
         })
       }
     }
