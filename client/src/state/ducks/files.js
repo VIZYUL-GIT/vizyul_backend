@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { createReducer, makeActionCreator } from '../utils';
+import { createReducer } from '../utils';
 
 const FILE_UPLOAD_REQUEST = 'vizyul/file/FILE_UPLOAD_REQUEST';
 const FILE_UPLOAD_SUCCESS = 'vizyul/file/FILE_UPLOAD_SUCCESS';
@@ -39,8 +39,8 @@ export function uploadFile(files) {
       });
       
       return axios.all(uploaders)
-        .then(resp => ({ status: 'success', response: resp.data }))
-        .catch(err => { console.log('err', err); return ({ status: 'error', err}); });
+        .then(resp => ({ status: true, response: resp.data }))
+        .catch(err => { console.log('err', err); return ({ status: false, err}); });
     },
     payload: { files },
   };

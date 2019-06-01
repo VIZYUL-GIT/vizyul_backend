@@ -33,8 +33,11 @@ export default function callApiMiddleware({ dispatch, getState }) {
         } else {
           dispatch(Object.assign({}, payload, { type: successType, response: response.data }));
         }
+        return response.data;
       },
-      error => dispatch(Object.assign({}, payload, { type: failureType, error: error.message })),
+      error => {
+        dispatch(Object.assign({}, payload, { type: failureType, error: error.message }));
+      }
     );
   };
 }

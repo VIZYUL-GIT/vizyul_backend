@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Navbar, Nav } from '../components/rb-import';
-import RouterNavLink from './RouterNavLink';
+import { Navbar, Nav } from '../rb-import';
+import RouterNavLink from '../RouterNavLink';
 
-const Navigation = () => (
+const Navigation = ({ username, logoutUser }) => (
   <Navbar bg="light" expand="lg">
     <Navbar.Brand href="#home">VIZYUL</Navbar.Brand>
     <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -13,6 +13,19 @@ const Navigation = () => (
         <RouterNavLink to="/upload">Upload</RouterNavLink>
         <Nav.Link href="#xpath">Xpath</Nav.Link>
       </Nav>
+      {username
+        ? (
+          <>
+            <Navbar.Text>
+              Logged in as: {username}
+            </Navbar.Text>
+            <Nav.Link onClick={() => logoutUser()}>Logout</Nav.Link>
+            </>
+        ) : (
+          <Nav>
+            <RouterNavLink to="/login">Login</RouterNavLink>
+          </Nav>
+        )}
     </Navbar.Collapse>
   </Navbar>
 );
