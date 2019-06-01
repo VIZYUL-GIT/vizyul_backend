@@ -9,12 +9,12 @@ const loginUser = (email, password) => {
     throw new ApiError(500, 'email and password are required');
   }
 
-  return User.findOne({ email: new RegExp(`^${email}$`, 'i') }, 'userId password')
+  return User.findOne({ email: new RegExp(`^${email}$`, 'i') }, 'userId password name')
     .then((user) => {
       if(user) {
-        const { password: pword, userId } = user;
+        const { password: pword, userId, name } = user;
         if (bcrypt.compareSync(password, pword)) {
-          return success({ userId });
+          return { userId, name };
         }
       }
       throw new ApiError(403, 'Username or password invalid');

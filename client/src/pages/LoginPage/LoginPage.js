@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { LinkContainer } from 'react-router-bootstrap';
 
 import { Row, Col, Form, Button, ButtonToolbar } from '../../components/rb-import';
 import { browserHistory } from '../../history';

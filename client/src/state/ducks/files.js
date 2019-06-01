@@ -28,18 +28,22 @@ export function uploadFile(files) {
         formData.append("file", file);
         formData.append("file_name", file.name);
   
-        return axios.post("/api/v1/file/up", formData, {
+        return axios.post("/api/file/up", formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           }
         })
           .then(resp => {
+            console.log('callApi response (file upload)', resp);
             return resp;
           });
       });
       
       return axios.all(uploaders)
-        .then(resp => ({ status: true, response: resp.data }))
+        .then(resp => {
+          console.log('axios.all response', resp);
+          return ({ status: true, response: resp.map(r => r.data.response) });
+        })
         .catch(err => { console.log('err', err); return ({ status: false, err}); });
     },
     payload: { files },

@@ -52,7 +52,10 @@ describe('User login', () => {
   it('should login a user with valid credentials', () => {
     return loginUser(TEST_EMAIL, TEST_PASSWORD)
       .then(result => {
-        expect(result).toEqual({ status: true, userId: TEST_USER_ID });
+        // Unlike other API calls, the call to loginUser should not return a { status: ... } field. The return
+        // value of the loginUser is forwarded on as is. Since the client is PassportJS and not the regular API,
+        // it is not required.
+        expect(result).toEqual({ userId: TEST_USER_ID, name: TEST_NAME });
       })
   });
 

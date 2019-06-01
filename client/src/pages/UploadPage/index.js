@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
-import { uploadFile } from '../../state';
+import { uploadFile, setNotice } from '../../state';
 
 import UploadPage from './UploadPage';
 
-export default connect(null, { uploadFile })(UploadPage);
+export default connect(null, { uploadFile, setNotice })(UploadPage);

@@ -21,8 +21,9 @@ const initialState = {};
 const reducer = createReducer(initialState, {
   [LOGIN_USER_SUCCESS]: (state, action) => {
     return updateObject(state, { 
-      username: action.username, 
+      email: action.email, 
       userId: action.response.user.userId,
+      name: action.response.user.name,
     });
   },
   [LOGOUT_USER_SUCCESS]: () => {
@@ -49,15 +50,15 @@ export function registerUser(name, email, password) {
   }
 };
 
-export function loginUser(username, password) {
+export function loginUser(email, password) {
   return {
     types: [
       LOGIN_USER_REQUEST,
       LOGIN_USER_SUCCESS,
       LOGIN_USER_FAILURE,
     ],
-    callApi: () => axios.post('/auth/login', { username, password }),
-    payload: { username },
+    callApi: () => axios.post('/auth/login', { username: email, password }),
+    payload: { email },
   };
 };
 
@@ -74,7 +75,9 @@ export function logoutUser() {
 
 // SELECTORS
 
-export const getUsername = state => state.user.username;
+export const getName = state => state.user.name;
+
+export const getEmail = state => state.user.username;
 
 export const getUserId = state => state.user.userId;
 

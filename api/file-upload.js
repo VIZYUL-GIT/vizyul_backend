@@ -1,5 +1,7 @@
 const debug = require('debug')('vizyul:file-upload');
+
 const { FileUpload } = require('./database/Upload');
+const { success } = require('./util');
 
 const updateOptions = {
   upsert: true,
@@ -10,7 +12,7 @@ const updateOptions = {
 const logFileUpload = (file) => {
   const upload = new FileUpload({ name: file.filename, fileType: 'image' });
   return upload.save()
-    .then(resp => { console.log('resp', resp); return resp; })
+    .then(response => { console.log('resp', response); const r = success({ response }); console.log('r', r); return r; })
     .catch(err => { console.log('err', err); throw err; });
 }
 

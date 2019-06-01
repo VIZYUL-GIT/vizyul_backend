@@ -23,6 +23,7 @@ const Navigation = ({ username, logoutUser }) => (
             </>
         ) : (
           <Nav>
+            <RouterNavLink to="/register">Register</RouterNavLink>
             <RouterNavLink to="/login">Login</RouterNavLink>
           </Nav>
         )}

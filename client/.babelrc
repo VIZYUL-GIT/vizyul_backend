@@ -1,0 +1,12 @@
+{
+  "env": {
+	  "development": {
+      "presets": ["react-app"],
+		  "plugins": ["transform-es2015-modules-commonjs"]
+	  },
+	  "test": {
+      "presets": ["react-app"],
+		  "plugins": ["transform-es2015-modules-commonjs"]
+	  }
+  }
+}

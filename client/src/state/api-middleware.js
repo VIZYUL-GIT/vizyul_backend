@@ -28,15 +28,16 @@ export default function callApiMiddleware({ dispatch, getState }) {
 
     return callApi().then(
       response => {
-        if (!response.data || response.data.Status === 'ERROR') {
-          dispatch(Object.assign({}, payload, { type: failureType, error: (response.data || {}).ErrorMessage}));
+        if (!response.status) {
+          dispatch(Object.assign({}, payload, { type: failureType, error: response.message || 'An error occurred, check server logs' }));
         } else {
           dispatch(Object.assign({}, payload, { type: successType, response: response.data }));
         }
-        return response.data;
+        return Promise.resolve({ response: response.response });
       },
       error => {
         dispatch(Object.assign({}, payload, { type: failureType, error: error.message }));
+        return Promise.reject(error);
       }
     );
   };
