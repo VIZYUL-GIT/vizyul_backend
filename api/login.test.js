@@ -64,7 +64,7 @@ describe('User login', () => {
       .then(result => { throw Error('Should not see this'); })
       .catch(err => {
         expect(err.message).toBe('Username or password invalid');
-        expect(err.status).toBe(403);
+        expect(err.status).toBe(404);
       });
   });
 
@@ -73,7 +73,7 @@ describe('User login', () => {
       .then(result => { throw Error('Should not see this'); })
       .catch(err => {
         expect(err.message).toBe('Username or password invalid');
-        expect(err.status).toBe(403);
+        expect(err.status).toBe(404);
       });
   });
 

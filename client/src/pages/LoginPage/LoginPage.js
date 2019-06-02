@@ -4,6 +4,7 @@ import { Row, Col, Form, Button, ButtonToolbar } from '../../components/rb-impor
 import { browserHistory } from '../../history';
 
 import style from './login.module.scss';
+import DismissableAlert from '../../components/DismissableAlert';
 
 class LoginPage extends Component {
   constructor(props) {
@@ -28,12 +29,11 @@ class LoginPage extends Component {
     event.preventDefault();
 
     const { username, password } = this.state;
-    const { loginUser } = this.props;
+    const { loginUser, setNotice } = this.props;
 
     loginUser(username, password)
-      .then(() => {
-        browserHistory.push('/');
-      });
+      .then(() => browserHistory.push('/'))
+      .catch((err) => setNotice('login', err.message, 'danger'));
   }
 
   render() {
@@ -43,6 +43,7 @@ class LoginPage extends Component {
         <Row>
           <Col>
             <h1>Login</h1>
+            <DismissableAlert topic="login" />
             <Form onSubmit={e => this.handleSubmit(e)}>
               <Form.Group controlId="username">
                 <Form.Label>Username*</Form.Label>

@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import { createReducer, makeActionCreator } from '../utils';
+import { createReducer, makeActionCreator, updateObject } from '../utils';
 
 // ACTION TYPES
 
@@ -13,9 +13,15 @@ const NOTICE_CLEAR_ALL = 'vizyul/notice/NOTICE_CLEAR_ALL';
 const initialState = {};
 
 const reducer = createReducer(initialState, {
-  [NOTICE_SET]: (state, action) => ({
-    ...state,
-    [action.topic]: { message: action.message, style: action.style || 'info' },
+  [NOTICE_SET]: (state, action) => updateObject(state, { 
+      [action.topic]: { 
+        message: action.message, 
+        style: action.style || 'info',
+      } 
+    // return ({
+    //   ...state,
+    //   [action.topic]: { message: action.message, style: action.style || 'info', timestamp: new Date() },
+    // })
   }),
   [NOTICE_CLEAR]: (state, action) => _.omit(state, action.topic),
   [NOTICE_CLEAR_ALL]: () => initialState,

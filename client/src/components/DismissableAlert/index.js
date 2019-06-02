@@ -8,4 +8,5 @@ const mapStateToProps = (state, ownProps) => ({
   notice: getNotice(state, ownProps.topic),
 });
 
+
 export default connect(mapStateToProps, { clearNotice })(DismissableAlert);

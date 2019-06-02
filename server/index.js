@@ -88,6 +88,7 @@ app
       return next(err);
     }
     if (err instanceof ApiError) {
+      debug(`ApiError: status=${err.status}, message="${err.message}"`);
       res.status(err.status).json({ status: false, message: err.message });
     } else {
       debug("Other error occurred", err);

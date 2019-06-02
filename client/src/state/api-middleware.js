@@ -1,3 +1,10 @@
+const errMessage = (err) => {
+  if (err.response) {
+    return err.response.data
+  }
+  return err.message;
+}
+
 export default function callApiMiddleware({ dispatch, getState }) {
   return next => action => {
     const { types, callApi, shouldCallApi = () => true, payload = {} } = action;
@@ -28,17 +35,19 @@ export default function callApiMiddleware({ dispatch, getState }) {
 
     return callApi().then(
       response => {
-        if (!response.status) {
+        if (!response.data.status) {
           dispatch(Object.assign({}, payload, { type: failureType, error: response.message || 'An error occurred, check server logs' }));
+          throw Promise.reject(response);
         } else {
           dispatch(Object.assign({}, payload, { type: successType, response: response.data }));
+          return Promise.resolve(response);
         }
-        return Promise.resolve({ response: response.response });
       },
       error => {
-        dispatch(Object.assign({}, payload, { type: failureType, error: error.message }));
-        return Promise.reject(error);
-      }
+        dispatch(Object.assign({}, payload, { type: failureType, error: errMessage(error) }));
+        // We return a resolution with a false status so that the error can be handled consistently.
+        return Promise.reject(error.response ? error.response.data : error);
+      },
     );
   };
 }

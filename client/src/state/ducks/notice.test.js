@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze';
+
 import reducer, * as notice from './notice';
 
 describe('notice state', () => {
@@ -15,6 +17,9 @@ describe('notice state', () => {
     const initialState = { 'elephants': { message: 'Hard to slice', style: 'danger' } };
     const action = { type: 'vizyul/notice/NOTICE_SET', topic: 'elephants', message: 'Big animals' };
     const expectedResult = { 'elephants': { message: 'Big animals', style: 'info' } };
+
+    deepFreeze(initialState);
+
     expect(reducer(initialState, action)).toEqual(expectedResult);
   });
 
@@ -22,6 +27,9 @@ describe('notice state', () => {
     const initialState = { 'elephants': { message: 'Hard to slice', style: 'danger' } };
     const action = { type: 'vizyul/notice/NOTICE_CLEAR', topic: 'elephants' };
     const expectedResult = {};
+
+    deepFreeze(initialState);
+
     expect(reducer(initialState, action)).toEqual(expectedResult);
   });
 
@@ -32,6 +40,9 @@ describe('notice state', () => {
     };
     const action = { type: 'vizyul/notice/NOTICE_CLEAR_ALL' };
     const expectedResult = {};
+
+    deepFreeze(initialState);
+    
     expect(reducer(initialState, action)).toEqual(expectedResult);
   })
 });

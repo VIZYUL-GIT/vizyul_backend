@@ -17,7 +17,7 @@ const loginUser = (email, password) => {
           return { userId, name };
         }
       }
-      throw new ApiError(403, 'Username or password invalid');
+      throw new ApiError(404, 'Username or password invalid');
     });
 } 
 

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 
 import { Alert } from '../rb-import';
 
@@ -10,7 +10,6 @@ class DismissableAlert extends Component {
 
   render() {
     const { notice } = this.props;
-    console.log('notice', notice);
     if (notice) {
       return (
         <Alert dismissible onClose={this.handleClose} variant={notice.style}>
