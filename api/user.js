@@ -20,10 +20,11 @@ const register = (name, email, pword) => {
         return User.create({ userId, name, email, password: bcrypt.hashSync(pword, salt) })
         .then(
           () => success({ userId }),
-          (err) => { if (err) throw new ApiError(500, err.message); }, // escape hatch during development 
+          (err) => { throw new ApiError(500, err.message); }, // escape hatch during development 
         ); 
+      } else {
+        throw new ApiError(400, `Email address (${email}) already exists`);
       }
-      throw new ApiError(400, `Email address (${email}) already exists`);
     });
 };
 

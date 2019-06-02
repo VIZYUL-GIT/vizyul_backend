@@ -112,6 +112,7 @@
     "moduleFileExtensions": [
       "js",
       "json"
-    ]
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/setupTests.js"]
   }
 }

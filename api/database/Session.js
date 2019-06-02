@@ -5,6 +5,7 @@ const SessionSchema = new Schema({
   name: {
     type: String,
     required: true,
+    default: () => `Session_${new Date().toDateString()}`,
   },
   mode: {
     type: String,
@@ -12,14 +13,7 @@ const SessionSchema = new Schema({
   files: Array,
 }, { timestamps: true });
 
-SessionSchema.pre('validate', (next) => {
-  if (this.name 
-    == undefined) {
-    this.name = `Session_${new Date().toDateString()}`;
-  }
-});
-
 module.exports = { 
   schema: SessionSchema, 
-  User: mongoose.model('Session', SessionSchema),
+  Session: mongoose.model('Session', SessionSchema),
 };

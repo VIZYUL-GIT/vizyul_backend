@@ -2,7 +2,6 @@ import mongoose from 'mongoose';
 
 import { User } from './database/User';
 import user from './user';
-import ApiError from './ApiError';
 
 mongoose.Promise = global.Promise;
 
