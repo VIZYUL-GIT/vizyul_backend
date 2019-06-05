@@ -2,8 +2,8 @@ const express = require('express');
 const debug = require('debug')('vizyul:api:user');
 const passport = require('passport');
 
-const user = require('../../../api/user');
-const ApiError = require('../../../api/ApiError');
+const user = require('../../api/user');
+const ApiError = require('../../api/ApiError');
 const authenticate = require('../auth-check');
 
 const router = express.Router()

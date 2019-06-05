@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-const app = require('../server').app;
+const app = require('../index').app;
 const debug = require('debug')('vizyul:server');
 const http = require('http');
 const cluster = require('cluster');

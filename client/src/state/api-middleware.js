@@ -1,9 +1,55 @@
-const errMessage = (err) => {
-  if (err.response) {
-    return err.response.data
+/**
+ * Extracts pertinent information from the error returned by axios through the catch. It is important to shed
+ * as much axios-specific stuff here as possible to keep the rest of the codebase from having to be too axios-aware.
+ * 
+ * See: https://github.com/axios/axios#handling-errors
+ * @param {Axios Error object} error 
+ */
+const extractError = error => {
+  // If this came from the concurrent utility function, the error will be trapped
+  // inside as { error }. The following will unwrap the error.
+  const actualError = error.error || error;
+
+  // The server provided a response. Return the data, status and headers
+  if (actualError.response) {
+    const { data, status, headers } = actualError.response;
+    return { data, status, headers };
   }
-  return err.message;
-}
+
+  // A request was made, but no response was received. Return the original request
+  if (actualError.request) {
+    const { request } = actualError;
+    return { request };
+  }
+
+  // Something happened in setting up the request that triggered an Error
+  return actualError;
+};
+
+/**
+ * Since we use axios.all for concurrent API calls, we need to check the error response
+ * to ensure that we correctly map the response when an array is returned (as from
+ * axios.all).
+ * @param {Array, object} errorResponse 
+ */
+const axiosErrorObject = errorResponse => {
+  if (Array.isArray(errorResponse)) {
+    return errorResponse.map(e => extractError(e));
+  }
+  return extractError(errorResponse);
+};
+
+/**
+ * Since we use axios.all for concurrent API calls, we need to check the response
+ * to ensure that we correctly map the response when an array is returned.
+ * @param {Array, object} successResponse 
+ */
+const axiosSuccessObject = successResponse => {
+  if (Array.isArray(successResponse)) {
+    return successResponse.map(s => s.data);
+  }
+  return successResponse.data;
+};
 
 export default function callApiMiddleware({ dispatch, getState }) {
   return next => action => {
@@ -33,21 +79,19 @@ export default function callApiMiddleware({ dispatch, getState }) {
 
     dispatch(Object.assign({}, payload, { type: requestType }));
 
-    return callApi().then(
-      response => {
-        if (!response.data.status) {
-          dispatch(Object.assign({}, payload, { type: failureType, error: response.message || 'An error occurred, check server logs' }));
-          throw Promise.reject(response);
-        } else {
-          dispatch(Object.assign({}, payload, { type: successType, response: response.data }));
-          return Promise.resolve(response);
-        }
-      },
-      error => {
-        dispatch(Object.assign({}, payload, { type: failureType, error: errMessage(error) }));
-        // We return a resolution with a false status so that the error can be handled consistently.
-        return Promise.reject(error.response ? error.response.data : error);
-      },
-    );
+    return callApi()
+      .then(
+        successResponse => {
+          const response = axiosSuccessObject(successResponse);
+          dispatch(Object.assign({}, payload, { response, type: successType }));
+          return response;
+        },
+        errorResponse => {
+          const error = axiosErrorObject(errorResponse);
+          
+          dispatch(Object.assign({}, payload, { error, type: failureType }));
+          throw error;
+        },
+      );
   };
 }

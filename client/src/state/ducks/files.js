@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { createReducer } from '../utils';
+import { concurrent } from '../axios-utils';
 
 const FILE_UPLOAD_REQUEST = 'vizyul/file/FILE_UPLOAD_REQUEST';
 const FILE_UPLOAD_SUCCESS = 'vizyul/file/FILE_UPLOAD_SUCCESS';
@@ -13,7 +14,7 @@ const reducer = createReducer(initialState, {
 
 export default reducer;
 
-export function uploadFile(files) {
+export function uploadFiles(files) {
   return {
     types: [
       FILE_UPLOAD_REQUEST,
@@ -38,13 +39,7 @@ export function uploadFile(files) {
             return resp;
           });
       });
-      
-      return axios.all(uploaders)
-        .then(resp => {
-          console.log('axios.all response', resp);
-          return ({ status: true, response: resp.map(r => r.data.response) });
-        })
-        .catch(err => { console.log('err', err); return ({ status: false, err}); });
+      return concurrent(uploaders);
     },
     payload: { files },
   };

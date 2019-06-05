@@ -2,7 +2,7 @@ const debug = require('debug')('vizyul:local');
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 const uuid = require('uuid/v4');
 
-const loginUser = require('../../api/login').loginUser;
+const loginUser = require('../api/login').loginUser;
 
 module.exports = new LinkedInStrategy(
   {

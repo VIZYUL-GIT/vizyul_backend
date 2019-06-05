@@ -1,10 +1,10 @@
 const debug = require('debug')('vizyul:passport');
 
-const { findUserByUserId } = require('../../api/user');
+const { findUserByUserId } = require('../api/user');
 const local = require('./local');
 const linkedin = require('./linkedin');
 
-const { User } = require('../../api/database/User');
+const { User } = require('../api/database/User');
 
 module.exports = (passport) => {
   passport.serializeUser((userInfo, done) => {

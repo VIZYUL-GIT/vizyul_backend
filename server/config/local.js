@@ -1,7 +1,7 @@
 const debug = require('debug')('vizyul:local');
 const LocalStrategy = require('passport-local').Strategy;
 
-const loginUser = require('../../api/login').loginUser;
+const loginUser = require('../api/login').loginUser;
 
 module.exports = new LocalStrategy((email, password, done) => {
   loginUser(email, password)

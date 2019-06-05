@@ -1,16 +1,14 @@
 const express = require('express');
-// const uuidv1 = require('uuid/v1')
-// const mime = require('mime-types')
 const multer = require('multer');
 const debug = require('debug')("vizyul:routes:api:file")
+const path = require('path');
 
-// const FileCtrl = require('../controllers/file')
-// const { catchError } = require('../controllers/error')
-const { FILES_PATH } = require('../../../config/path');
-
-const { logFileUpload } = require('../../../api/file-upload');
+const { logFileUpload } = require('../../api/file-upload');
 
 const router = express.Router()
+const FILES_PATH = path.resolve(__dirname, '../../../files');
+
+debug('Uploading to ', FILES_PATH);
 
 const fileStorage = multer.diskStorage({
   destination: function (req, file, cb) {

@@ -14,12 +14,14 @@ const bodyParser = require('body-parser');
 
 const apiRouter = require('./routes/api');
 const authRouter = require('./routes/auth');
-const ApiError = require('../api/ApiError');
+const ApiError = require('./api/ApiError');
 const configurePassport = require('./config/passport');
 
 const HTTP_SERVER_ERROR = 500;
 
-require('../api/database/db'); // Handles the Mongoose connections for the entire app...
+debug('Test of .env read', process.env.TEST_VALUE);
+
+require('./api/database/db'); // Handles the Mongoose connections for the entire app...
 
 process.on('unhandledRejection', (reason, promise) => {
   console.log('====== CAUGHT UNHANDLED PROMISE REJECTION');
@@ -92,7 +94,7 @@ app
       res.status(err.status).json({ status: false, message: err.message });
     } else {
       debug("Other error occurred", err);
-      res.status(err.status || HTTP_SERVER_ERROR).json({ error: err });
+      res.status(err.status || HTTP_SERVER_ERROR).json({ status: false, error: err.message });
     }
   });
 
