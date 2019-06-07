@@ -1,31 +1,41 @@
 const bcrypt = require('bcrypt');
 const uuid = require('uuid/v4');
+const debug = require('debug')('vizyul:api:register');
 
-const { User } = require('./database/User');
+const { db, errors } = require('../db');
 const ApiError = require('./ApiError');
 const { success } = require('./util');
 
-const { validateUuid, validateName, validatePassword, validateUsername, validateEmail } = require('./validate');
+const { validatePassword, validateName, validateEmail } = require('./validate');
 
-const register = (name, email, pword) => {
-  validateName(name);
+const register = (
+  name,
+  email,
+  password,
+) => new Promise((resolve, reject) => {
+  validatePassword(password);
   validateEmail(email);
-  validatePassword(pword);
-  return User.findOne({ email })
-    .then(user => {
-      if (user === null) {
-        const userId = uuid();
-        const salt = bcrypt.genSaltSync(10);
+  validateName(name);
 
-        return User.create({ userId, name, email, password: bcrypt.hashSync(pword, salt) })
-        .then(
-          () => success({ userId }),
-          (err) => { throw new ApiError(500, err.message); }, // escape hatch during development 
-        ); 
+  const userId = uuid();
+  const salt = bcrypt.genSaltSync(10);
+
+  db.user.registerUser(userId, name, email, bcrypt.hashSync(password, salt))
+    .then((result) => {
+      debug('register user returned', result);
+      if (!result.rowCount) {
+        reject(new ApiError(500, 'Error inserting new user.'));
       } else {
-        throw new ApiError(400, `Email address (${email}) already exists`);
+        resolve(success({ message: 'Registration successful' }));
+      }
+    })
+    .catch((err) => {
+      if (err.code === '23505') { // unique_violation
+        reject(new ApiError(400, 'The email address you entered is in use. Please try another one.'));
+      } else {
+        reject(err);
       }
     });
-};
+});
 
 module.exports = { register };

@@ -1,0 +1,10 @@
+{
+  "dev": {
+    "driver": "pg",
+    "user": "dbuser",
+    "password": "password",
+    "host": "localhost",
+    "database": "vizyul",
+    "schema": "webapp"
+  }
+}

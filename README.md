@@ -49,17 +49,20 @@ In order to install and run the web application, you need to have the following 
 - <strong>Node</strong> 8.9.1 or higher.
 - <strong>npm</strong> 4.6.1 or higher.
 - <strong>yarn</strong> 1.5.1 or higher.
+- <strong>PostgreSQL</strong> 11.
 
 It is recommended that you install `nvm` first, and then install `node` using `nvm`. Instructions for `node` are located [here](https://nodejs.org/en/download/).
 
 Development tools:
 - <strong>jest</strong> latest, global install.
 - <strong>create-react-app</strong> latest.
+- <strong>db-migrate</strong> latest.
+- <strong>db-migrate-pg</strong> latest.
 
 
 Install these tools using the following command:
   ```
-  npm install -g create-react-app jest
+  npm install -g create-react-app jest db-migrate db-migrate-pg
   ```
 ### Installation Steps
 

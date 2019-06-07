@@ -1,24 +1,34 @@
 const bcrypt = require('bcrypt');
+const debug = require('debug')('vizyul:api:login');
 
-const { User } = require('./database/User');
+const { db, errors } = require('../db');
 const ApiError = require('./ApiError');
 const { success } = require('./util');
+const { validateEmail, validatePassword } = require('./validate');
 
-const loginUser = (email, password) => {
-  if (!email || !password) {
-    throw new ApiError(500, 'email and password are required');
-  }
+const QueryResultError = errors.QueryResultError;
+const qrec = errors.queryResultErrorCode;
 
-  return User.findOne({ email: new RegExp(`^${email}$`, 'i') }, 'userId password name')
+const loginUser = (email, password) => new Promise((resolve, reject) => {
+  validateEmail(email);
+  validatePassword(password);
+  db.auth.findUserByEmail(email)
     .then((user) => {
-      if(user) {
-        const { password: pword, userId, name } = user;
-        if (bcrypt.compareSync(password, pword)) {
-          return { userId, name };
+      debug('findUserByEmail returned', user);
+      const { user_password, user_app_id, user_name, user_email } = user;
+      if (bcrypt.compareSync(password, user_password)) {
+        resolve({ userId: user_app_id, name: user_name, email: user_email });
+      }
+      throw new ApiError(403, 'Login failed');
+    })
+    .catch((err) => {
+      if (err instanceof QueryResultError) {
+        if (err.code == qrec.noData) {
+          reject(new ApiError(404, 'User not found'));
         }
       }
-      throw new ApiError(404, 'Username or password invalid');
+      reject(err);
     });
-} 
+});
 
 module.exports = { loginUser };

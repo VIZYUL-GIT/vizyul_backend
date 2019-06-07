@@ -1,4 +1,5 @@
 import axios from 'axios';
+import uuid from 'uuid/v4';
 
 import { createReducer } from '../utils';
 import { concurrent } from '../axios-utils';
@@ -23,9 +24,12 @@ export function uploadFiles(files) {
     ],
     // shouldCallApi: state => !(state.rep.verified && state.rep.repId === repId),
     callApi: () =>  {
+      const sessionId = uuid();
+
       const uploaders = files.map(file => {
         const formData = new FormData();
   
+        formData.set('sessionId', sessionId);
         formData.append("file", file);
         formData.append("file_name", file.name);
   
