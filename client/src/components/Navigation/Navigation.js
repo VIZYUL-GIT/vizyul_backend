@@ -3,7 +3,7 @@ import React from 'react';
 import { Navbar, Nav } from '../rb-import';
 import RouterNavLink from '../RouterNavLink';
 
-const Navigation = ({ username, logoutUser }) => (
+const Navigation = ({ authenticated, name, logoutUser }) => (
   <Navbar bg="light" expand="lg">
     <Navbar.Brand href="#home">VIZYUL</Navbar.Brand>
     <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -13,11 +13,11 @@ const Navigation = ({ username, logoutUser }) => (
         <RouterNavLink to="/upload">Upload</RouterNavLink>
         <Nav.Link href="#xpath">Xpath</Nav.Link>
       </Nav>
-      {username
+      {authenticated
         ? (
           <>
             <Navbar.Text>
-              Logged in as: {username}
+              Logged in as: {name}
             </Navbar.Text>
             <Nav.Link onClick={() => logoutUser()}>Logout</Nav.Link>
             </>

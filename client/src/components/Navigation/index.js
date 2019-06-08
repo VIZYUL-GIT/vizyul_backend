@@ -1,10 +1,11 @@
 import { connect } from 'react-redux';
 
 import Navigation from './Navigation';
-import { getName, logoutUser } from '../../state';
+import { logoutUser, getAuthStatus, getName } from '../../state';
 
 const mapStateToProps = state => ({
-  username: getName(state),
+  authenticated: getAuthStatus(state),
+  name: getName(state),
 });
 
 export default connect(mapStateToProps, { logoutUser })(Navigation);

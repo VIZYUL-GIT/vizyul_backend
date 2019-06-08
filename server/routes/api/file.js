@@ -3,25 +3,26 @@ const multer = require('multer');
 const debug = require('debug')("vizyul:routes:api:file")
 const path = require('path');
 const fs = require('fs');
+const passport = require('passport');
 
-const { logFileUpload } = require('../../api/file-upload');
+const { logFileUpload } = require('../../api/session');
 const ApiError = require('../../api/ApiError');
 const { validateUuid } = require('../../api/validate');
+const { createSession } = require('../../api/session');
+const authenticate = require('../auth-check');
 
 const router = express.Router()
-const FILES_PATH = path.resolve(__dirname, '../../../files');
-
-debug('Uploading to ', FILES_PATH);
+const FILES_PATH = path.resolve(__dirname, '../../files');
 
 const fileStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    if (!req.body.sessionId) {
-      cb(new ApiError(400, 'Cannot upload without session id'));
+  destination: function (req, _file, cb) {
+    if (!req.body.sessionAppId) {
+      cb(new ApiError(400, 'Cannot upload without application session id'));
     } else {
       try {
-        validateUuid(req.body.sessionId);
+        validateUuid(req.body.sessionAppId, `Invalid application session id: ${req.body.sessionAppId}`);
 
-        const sessionFolder = path.resolve(FILES_PATH, req.body.sessionId);
+        const sessionFolder = path.resolve(FILES_PATH, req.body.sessionAppId);
         fs.mkdirSync(sessionFolder, { recursive: true });
         
         cb(null, sessionFolder);
@@ -30,7 +31,7 @@ const fileStorage = multer.diskStorage({
       }
     }
   },
-  filename: (req, file, cb) => {
+  filename: (_req, file, cb) => {
     cb(null,  file.originalname)
   }
 });
@@ -38,9 +39,9 @@ const fileStorage = multer.diskStorage({
 const upload = multer({ storage: fileStorage });
 
 // Upload a file
-router.post('/up', upload.single('file'), (req, res, next) => {
-  const { sessionId } = req.body;
-  logFileUpload(sessionId, req.file)
+router.post('/up', authenticate, upload.single('file'), (req, res, next) => {
+  const { sessionAppId } = req.body;
+  logFileUpload(sessionAppId, req.file)
     .then(response => {
       debug('/up received', response);
       res.status(201).send(response);

@@ -271,9 +271,9 @@ router.get('*', (req, res) => {
 ### API routes
 
 Each route utilizes services provided in three separate architectural layers to accomplish its task. These areas are:
-- <strong>The Express Router</strong> This is a thin layer, simply deferring to the API Execution layer for execution, and returning the results to the caller. These routes are housed in the `/routes` directory. This layer is dependent solely on the business logic layer. The error handling in this layer is centralized to prevent duplicated logic throughout the application.
-- <strong>The API Execution Layer</strong> This layer handles the actual processing of requests made, formatting and returning results. Errors here are returned via the `ApiError` object. All relevant database errors (unique contraints, null constraints, etc.) are interpreted and handled in this layer. These routines are situated in the `/api` directory. This layer is solely dependent on the database access layer.
-- <strong>The Database Access Layer</strong> This is another thin layer deals with database access concerns such as pooling, query execution and MongoDB query code. The database initialization code, schemas and models are housed in the `/api/database` directory.
+- <strong>The Express Router</strong> This is a thin layer, simply deferring to the API Execution layer for execution, and returning the results to the caller. These routes are housed in the `server/routes` directory. This layer is dependent solely on the business logic layer. The error handling in this layer is centralized to prevent duplicated logic throughout the application.
+- <strong>The API Execution Layer</strong> This layer handles the actual processing of requests made, formatting and returning results. Errors here are returned via the `ApiError` object. All relevant database errors (unique contraints, null constraints, etc.) are interpreted and handled in this layer. These routines are situated in the `server/api` directory. This layer is solely dependent on the database access layer.
+- <strong>The Database Access Layer</strong> This is another thin layer deals with database access concerns such as pooling, query execution and PostgreSQL query code. The database initialization code, schemas and models are housed in the `server/db` directory.
 
 ### Route Example
 

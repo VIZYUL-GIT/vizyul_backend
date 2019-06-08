@@ -17,5 +17,11 @@ module.exports = {
   },
   auth: {
     findUserByEmail: sql('auth/findUserByEmail.sql'),
+    findUserByUserId: sql('auth/findUserByUserId.sql'),
+  },
+  session: {
+    insertSession: sql('session/insertSession.sql'),
+    insertFileUpload: sql('session/insertFileUpload.sql'),
+    findSessionBySessionAppId: sql('session/findSessionBySessionAppId.sql'),
   },
 };

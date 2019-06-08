@@ -20,7 +20,7 @@ const validate = (test, message, status = 400) => (value, messageOverride) => {
 };
 
 module.exports = {
-  validateUuid: validate((val) => val && uuidRegex.test(val), 'Invalid invitation code'),
+  validateUuid: validate((val) => val && uuidRegex.test(val), 'Invalid id'),
   validatePassword: validate((val) => val && passwordRegex.test(val), 'Invalid password'),
   validateUsername: validate((val) => val && usernameRegex.test(val), 'Username should be alphanumeric and not empty.'),
   validateEmail: validate((val) => val && emailRegex.test(val), 'Invalid email address.'),

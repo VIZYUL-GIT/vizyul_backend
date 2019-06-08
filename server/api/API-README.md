@@ -41,3 +41,10 @@ constructor expects two parameters: a status code and a message.
 throw new ApiError(400, 'Input invalid');
 ```
 
+When returning Promises, it is necessary to reject rather than throw:
+
+```javascript
+  if (somethingBadHappened) {
+    reject(new ApiError(400, 'Input invalid));
+  }
+```

@@ -62,12 +62,53 @@ exports.up = function(db) {
         primaryKey: true, 
         autoIncrement: true,
       },
+      session_app_id: {
+        type: 'string',
+        unique: true,
+      },
       session_name: 'string',
-    }));
+    }))
+    .then(() => db.createTable('uploads', {
+      user_id: {
+        type: 'int',
+        unsigned: true,
+        primaryKey: true,
+      },
+      session_id: {
+        type: 'int',
+        unsigned: true,
+        primaryKey: true,
+      },
+      upload_app_id: {
+        type: 'string',
+        unique: true,
+      },
+      upload_id: {
+        type: 'int',
+        unsigned: true,
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      upload_file_name: 'string',
+    }))
+    .then(() => db.addForeignKey(
+      'uploads',
+      'sessions',
+      'uploads_session_user_id_fkey',
+      {
+        user_id: 'user_id',
+        session_id: 'session_id',
+      },
+      {
+        onDelete: 'CASCADE',
+        onUpdate: 'RESTRICT',
+      }
+    ));
 };
 
 exports.down = function(db) {
-  return db.dropTable('sessions')
+  return db.dropTable('uploads')
+    .then(() => db.dropTable('sessions'))
     .then(() => db.dropTable('users'));
 };
 

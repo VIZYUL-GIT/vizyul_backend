@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'underscore';
 
 import { createReducer, updateObject } from '../utils';
 
@@ -7,9 +8,11 @@ import { createReducer, updateObject } from '../utils';
 const REGISTER_USER_REQUEST = 'vizyul/user/REGISTER_USER_REQUEST';
 const REGISTER_USER_SUCCESS = 'vizyul/user/REGISTER_USER_SUCCESS';
 const REGISTER_USER_FAILURE = 'vizyul/user/REGISTER_USER_FAILURE';
+
 const LOGIN_USER_REQUEST = 'vizyul/user/LOGIN_USER_REQUEST';
 const LOGIN_USER_SUCCESS = 'vizyul/user/LOGIN_USER_SUCCESS';
-export const LOGIN_USER_FAILURE = 'vizyul/user/LOGIN_USER_FAILURE';
+const LOGIN_USER_FAILURE = 'vizyul/user/LOGIN_USER_FAILURE';
+
 const LOGOUT_USER_REQUEST = 'vizyul/user/LOGOUT_USER_REQUEST';
 const LOGOUT_USER_SUCCESS = 'vizyul/user/LOGOUT_USER_SUCCESS';
 const LOGOUT_USER_FAILURE = 'vizyul/user/LOGOUT_USER_FAILURE';
@@ -19,15 +22,20 @@ const LOGOUT_USER_FAILURE = 'vizyul/user/LOGOUT_USER_FAILURE';
 const initialState = {};
 
 const reducer = createReducer(initialState, {
+  [REGISTER_USER_SUCCESS]: (state, action) => updateObject(state, {
+    name: action.name,
+    email: action.email,
+  }),
   [LOGIN_USER_SUCCESS]: (state, action) => {
+    console.log('userAppId')
     return updateObject(state, { 
       email: action.email, 
-      userId: action.response.user.userId,
+      userAppId: action.response.user.userAppId,
       name: action.response.user.name,
-    });
+    })
   },
-  [LOGOUT_USER_SUCCESS]: () => {
-    return initialState;
+  [LOGOUT_USER_SUCCESS]: (state, _action) => {
+    return _.omit(state, ['userId']);
   }
 });
 
@@ -77,8 +85,8 @@ export function logoutUser() {
 
 export const getName = state => state.user.name;
 
-export const getEmail = state => state.user.username;
+export const getUserEmail = state => state.user.email;
 
-export const getUserId = state => state.user.userId;
+export const getUserAppId = state => state.user.userAppId;
 
-export const getAuthStatus = state => state.user.userId !== undefined;
+export const getAuthStatus = state => state.user.userAppId !== undefined;

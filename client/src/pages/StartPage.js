@@ -9,6 +9,7 @@ const StartPage = () => (
     </Col>
     <Col>
       <h1>Second column</h1>
+      
     </Col>
   </Row>
 );

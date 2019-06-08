@@ -1,21 +1,17 @@
 const express = require('express');
 
 const user = require('./user');
-const file = require('./file')
-// const xpath = require('./xpath')
-// const UserCtrl = require('../controllers/user')
+const file = require('./file');
+const session = require('./session');
 
 const router = express.Router()
+
+router.use('/session', session);
+router.use('/file', file);
+router.use('/user', user);
 
 router.get('/health', (req, res) => {
   res.status(200).json({ status: true, message: 'OK' });
 });
 
-router.use('/user', user);
-router.use('/file', file);
-
-// User Dashboard api
-// router.use('/user', user)
-// router.use('/file', file)
-// router.use('/xpath', xpath)
-module.exports = router
+module.exports = router;

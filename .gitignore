@@ -61,4 +61,4 @@ typings/
 .next
 
 # uploaded files
-files/
+server/files/

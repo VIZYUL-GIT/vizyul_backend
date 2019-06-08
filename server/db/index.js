@@ -8,6 +8,7 @@ const initOptions = {
     // Add other repositories here as they are defined
     obj.user = new repos.User(obj, pgp);
     obj.auth = new repos.Auth(obj, pgp);
+    obj.session = new repos.Session(obj, pgp);
   }
 }
 const pgp = require('pg-promise')(initOptions);

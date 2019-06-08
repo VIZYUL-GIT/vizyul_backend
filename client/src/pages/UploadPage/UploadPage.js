@@ -7,7 +7,7 @@ import DismissableAlert from '../../components/DismissableAlert';
 const UPLOAD_TOPIC = 'upload';
 const UPLOAD_REJECTED_TOPIC = 'upload-rejected';
 
-const UploadPage = ({ uploadFiles, setNotice }) => (
+const UploadPage = ({ uploadFiles, setNotice, userAppId }) => (
   <Row>
     <Col>
       <h1>UploadFile Page</h1>
@@ -19,8 +19,9 @@ const UploadPage = ({ uploadFiles, setNotice }) => (
             const list = rejected.map(r => r.name).join(', ');
             setNotice(UPLOAD_REJECTED_TOPIC, `The following files were not uploaded: ${list}`, 'danger');
           }
+          
           if (files && files.length > 0) {
-            uploadFiles(files)
+            uploadFiles(userAppId, files)
             .then(() => setNotice(UPLOAD_TOPIC, 'File upload successful'))
             .catch(err => {
               console.log('err', err);

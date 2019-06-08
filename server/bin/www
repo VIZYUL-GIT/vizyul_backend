@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 const app = require('../index').app;
-const debug = require('debug')('vizyul:server');
+const debug = require('debug')('vizyul:www');
 const http = require('http');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;

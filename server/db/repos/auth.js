@@ -9,6 +9,10 @@ class AuthRepository {
   findUserByEmail(email) {
     return this.db.one(sql.findUserByEmail, email);
   }
+
+  findUserByUserId(userId) {
+    return this.db.one(sql.findUserByUserId, userId);
+  }
 }
 
 module.exports = AuthRepository;
