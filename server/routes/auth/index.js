@@ -13,7 +13,13 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 router.post('/logout', authenticate, (req, res) => {
   debug('/logout called');
   req.logout();
-  res.status(200).json({ status: true, message: 'Logged out.' });
+  req.session.destroy((err) => {
+    if (err) {
+      next(err);
+    } else {
+      res.status(200).json({ status: true, message: 'Logged out.' });
+    }
+  });
 });
 
 router.get('/linkedin', passport.authenticate('linkedin', { scope: ['r_basicprofile', 'r_emailaddress'] }));

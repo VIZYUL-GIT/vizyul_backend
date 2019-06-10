@@ -7,7 +7,8 @@ const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
-const cookieSession = require('cookie-session');
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const passport = require('passport');
 const debug = require('debug')('vizyul:server');
 const bodyParser = require('body-parser');
@@ -16,6 +17,8 @@ const apiRouter = require('./routes/api');
 const authRouter = require('./routes/auth');
 const ApiError = require('./api/ApiError');
 const configurePassport = require('./config/passport');
+
+const { db, errors } = require('./db');
 
 const HTTP_SERVER_ERROR = 500;
 
@@ -26,12 +29,6 @@ process.on('unhandledRejection', (reason, promise) => {
   console.log('  Uncaught promise reason: ', reason);
   console.log('  Promise', promise);
 });
-
-const sessionConfig = {
-  name: 'vizyul-app',
-  secret: process.env.SESSION_SECRET,
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours
-};
 
 const app = express();
 
@@ -53,7 +50,17 @@ app
   .use(express.json({ limit: '50mb' }))
   .use(express.urlencoded({ extended: false, limit: '50mb' }))
   .use(cookieParser())
-  .use(cookieSession(sessionConfig))
+  .use(session({
+    store: new pgSession({
+      pgPromise: db,
+      schemaName: 'webapp',
+      tableName: 'user_sessions',
+    }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    cookie: { maxAge: 60 * 60 * 1000 }, // 1 hr
+    saveUninitialized: false,
+  }))
   .use(passport.initialize())
   .use(passport.session())
 
