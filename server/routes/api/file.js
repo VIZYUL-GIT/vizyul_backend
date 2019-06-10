@@ -41,6 +41,7 @@ const upload = multer({ storage: fileStorage });
 router.post('/up', authenticate, upload.single('file'), (req, res, next) => {
   const { sessionAppId } = req.body;
   debug(`/api/file/up [sessionAppId=${sessionAppId}]`)
+  debug('/api/file/up req.file=', req.file);
   logFileUpload(sessionAppId, req.file)
     .then(response => {
       debug(`/api/file/up [response=${JSON.stringify(response)}]`);

@@ -37,7 +37,7 @@ const fileUpload = (task, session, file) => task.session.insertFileUpload(
   session.user_id,
   session.session_id,
   uuid(),
-  file.name
+  file.filename
 );
 
 //======================================================================================================================

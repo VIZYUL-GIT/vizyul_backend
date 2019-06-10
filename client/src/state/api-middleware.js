@@ -96,7 +96,7 @@ export default function callApiMiddleware({ dispatch, getState }) {
         },
         errorResponse => {
           const error = axiosErrorObject(errorResponse);
-          
+          console.log('errorResponse => error', errorResponse, error);
           dispatch(Object.assign({}, payload, { error, type: failureType }));
           throw error;
         },

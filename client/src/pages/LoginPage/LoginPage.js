@@ -5,6 +5,7 @@ import { browserHistory } from '../../history';
 
 import style from './login.module.scss';
 import DismissableAlert from '../../components/DismissableAlert';
+import formatErrorMessage from '../../components/format-error';
 
 class LoginPage extends Component {
   constructor(props) {
@@ -33,7 +34,7 @@ class LoginPage extends Component {
 
     loginUser(username, password)
       .then(() => browserHistory.push('/'))
-      .catch((err) => setNotice('login', err.message, 'danger'));
+      .catch((err) => setNotice('login', formatErrorMessage(err), 'danger'));
   }
 
   render() {
