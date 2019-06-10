@@ -1,18 +1,14 @@
 const sql = require('../sql').auth;
+const debug = require('debug')('vizyul:authrepo')
+ 
+const { getOne } = require('../db-utils');
 
-class AuthRepository {
-  constructor(db, pgp) {
-    this.db = db;
-    this.pgp = pgp;
-  }
+function AuthRepository(db, pgp) {
+  this.db = db;
+  this.pgp = pgp;
 
-  findUserByEmail(email) {
-    return this.db.one(sql.findUserByEmail, email);
-  }
-
-  findUserByUserId(userId) {
-    return this.db.one(sql.findUserByUserId, userId);
-  }
+  this.findUserByEmail = getOne(this.db, sql.findUserByEmail, 'findUserByEmail', 'email');
+  this.findUserByUserId = getOne(this.db, sql.findUserByUserId, 'findUserByUserId', 'userId');
 }
 
 module.exports = AuthRepository;

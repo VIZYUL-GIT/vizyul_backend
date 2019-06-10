@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const ApiError = require('./api/ApiError');
 
 expect.extend({

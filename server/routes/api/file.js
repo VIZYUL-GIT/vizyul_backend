@@ -8,7 +8,6 @@ const passport = require('passport');
 const { logFileUpload } = require('../../api/session');
 const ApiError = require('../../api/ApiError');
 const { validateUuid } = require('../../api/validate');
-const { createSession } = require('../../api/session');
 const authenticate = require('../auth-check');
 
 const router = express.Router()
@@ -41,9 +40,10 @@ const upload = multer({ storage: fileStorage });
 // Upload a file
 router.post('/up', authenticate, upload.single('file'), (req, res, next) => {
   const { sessionAppId } = req.body;
+  debug(`/api/file/up [sessionAppId=${sessionAppId}]`)
   logFileUpload(sessionAppId, req.file)
     .then(response => {
-      debug('/up received', response);
+      debug(`/api/file/up [response=${JSON.stringify(response)}]`);
       res.status(201).send(response);
     })
     .catch(err => next(err));

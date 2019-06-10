@@ -8,9 +8,9 @@ const vizyulApp = combineReducers({
   user,
   notice,
   session,
-});
+}); 
 
-export default vizyulApp;
+export default vizyulApp; 
  
 export * from './ducks/user';
 export * from './ducks/notice';

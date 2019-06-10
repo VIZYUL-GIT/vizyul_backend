@@ -3,6 +3,7 @@ import React from 'react';
 import { Row, Col } from '../../components/rb-import';
 import DropzoneWrapper from '../../components/DropzoneWrapper';
 import DismissableAlert from '../../components/DismissableAlert';
+import UploadArray from '../../components/UploadArray';
 
 const UPLOAD_TOPIC = 'upload';
 const UPLOAD_REJECTED_TOPIC = 'upload-rejected';
@@ -36,6 +37,7 @@ const UploadPage = ({ uploadFiles, setNotice, userAppId }) => (
           }
         }}
       />
+      <UploadArray />
     </Col>
   </Row>
 );

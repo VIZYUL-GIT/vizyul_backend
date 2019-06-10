@@ -5,7 +5,6 @@ const dom = require('xmldom').DOMParser
 const { FILES_PATH } = require('../config/path')
 
 const create = async (req, res) => {
-    console.log('FILES_PATH', FILES_PATH)
     try {
         if (req.file) {   
             const file = new File({
@@ -21,7 +20,6 @@ const create = async (req, res) => {
                 }
             })
         } else {
-            console.log(Object.keys(req), req.body);
             res.status(500).send({
                 status: false,
                 error: 'Internal_server_error (b)'

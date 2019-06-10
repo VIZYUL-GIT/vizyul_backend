@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const uuid = require('uuid/v4');
-const debug = require('debug')('vizyul:api:register');
+const debug = require('debug')('vizyul:api:session');
 const moment = require('moment');
 
 const { db, errors } = require('../db');

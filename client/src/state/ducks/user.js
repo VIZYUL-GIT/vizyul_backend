@@ -14,7 +14,7 @@ const LOGIN_USER_SUCCESS = 'vizyul/user/LOGIN_USER_SUCCESS';
 const LOGIN_USER_FAILURE = 'vizyul/user/LOGIN_USER_FAILURE';
 
 const LOGOUT_USER_REQUEST = 'vizyul/user/LOGOUT_USER_REQUEST';
-const LOGOUT_USER_SUCCESS = 'vizyul/user/LOGOUT_USER_SUCCESS';
+export const LOGOUT_USER_SUCCESS = 'vizyul/user/LOGOUT_USER_SUCCESS';
 const LOGOUT_USER_FAILURE = 'vizyul/user/LOGOUT_USER_FAILURE';
 
 // REDUCER
@@ -27,7 +27,6 @@ const reducer = createReducer(initialState, {
     email: action.email,
   }),
   [LOGIN_USER_SUCCESS]: (state, action) => {
-    console.log('userAppId')
     return updateObject(state, { 
       email: action.email, 
       userAppId: action.response.user.userAppId,
@@ -35,7 +34,7 @@ const reducer = createReducer(initialState, {
     })
   },
   [LOGOUT_USER_SUCCESS]: (state, _action) => {
-    return _.omit(state, ['userId']);
+    return _.omit(state, ['userAppId']);
   }
 });
 

@@ -39,6 +39,13 @@ const axiosErrorObject = errorResponse => {
   return extractError(errorResponse);
 };
 
+const extractSuccess = success => {
+  if (success.data) {
+    return success.data
+  }
+  return success;
+}
+
 /**
  * Since we use axios.all for concurrent API calls, we need to check the response
  * to ensure that we correctly map the response when an array is returned.
@@ -46,9 +53,9 @@ const axiosErrorObject = errorResponse => {
  */
 const axiosSuccessObject = successResponse => {
   if (Array.isArray(successResponse)) {
-    return successResponse.map(s => s.data);
+    return successResponse.map(s => extractSuccess(s));
   }
-  return successResponse.data;
+  return extractSuccess(successResponse);
 };
 
 export default function callApiMiddleware({ dispatch, getState }) {
@@ -83,6 +90,7 @@ export default function callApiMiddleware({ dispatch, getState }) {
       .then(
         successResponse => {
           const response = axiosSuccessObject(successResponse);
+          console.log('successResponse => response', successResponse, response)
           dispatch(Object.assign({}, payload, { response, type: successType }));
           return response;
         },

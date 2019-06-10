@@ -9,7 +9,6 @@ import DismissableAlert from '../../components/DismissableAlert';
 class LoginPage extends Component {
   constructor(props) {
     super(props);
-    console.log(props);
     this.state = {
       username: props.userEmail || '',
       password: '',

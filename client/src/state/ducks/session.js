@@ -2,11 +2,14 @@ import axios from 'axios';
 import { createReducer, makeActionCreator, updateObject } from "../utils";
 
 import { concurrent } from '../axios-utils';
+import { LOGOUT_USER_SUCCESS } from './user';
 
 // axios.interceptors.request.use((request) => {
 //   console.log('starting request:', request);
 //   return request;
 // });
+
+const PAGE_SIZE = 20;
 
 // ACTION TYPES
 
@@ -37,7 +40,15 @@ const reducer = createReducer(initialState, {
     sessionAppId: action.response.session_app_id,
     sessionName: action.response.session_name,
   }),
+  [FILE_UPLOAD_SUCCESS]: (state, action) => {
+    console.log('file_upload_success returned action', action);
+    return updateObject(state, {
+      sessionAppId: action.response.sessionAppId,
+      uploads: action.response.uploads,
+    });
+  },
   [SESSION_CLEAR]: () => initialState,
+  [LOGOUT_USER_SUCCESS]: () => initialState,
 });
 
 export default reducer;
@@ -108,7 +119,6 @@ export function uploadFiles(userAppId, files) {
               }
             })
               .then(resp => {
-                console.log('callApi response (file upload)', resp);
                 return { ...resp.data.response, file: file.name };
               });
           });
@@ -116,7 +126,6 @@ export function uploadFiles(userAppId, files) {
           return concurrent(uploaders)
             .then(uploads => {
               const result = { uploads, sessionAppId };
-              console.log('final response', result);
               return result;
             });
         });
@@ -127,8 +136,10 @@ export function uploadFiles(userAppId, files) {
 
 // SELECTORS
 
-export const getSessionAppId = state => state.session.id;
+export const getSessionAppId = state => state.session.sessionAppId;
 
 export const getSessionName = state => state.session.name;
 
 export const getSessionMode = state => state.session.mode;
+
+export const getUploads = state => state.session.uploads;

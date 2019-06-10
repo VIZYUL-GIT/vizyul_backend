@@ -6,5 +6,13 @@
     "host": "localhost",
     "database": "vizyul",
     "schema": "webapp"
+  },
+  "test": {
+    "driver": "pg",
+    "user": "dbuser",
+    "password": "password",
+    "host": "localhost",
+    "database": "vizyul",
+    "schema": "test"
   }
 }
