@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
 
 import ProtectedRoute from './ProtectedRoute';
-import { getUsername } from '../../state';
+import { getAuthStatus } from '../../state';
 
 const mapStateToProps = state => ({
-  isAuthorized: getUsername(state) !== undefined,
+  isAuthorized: getAuthStatus(state),
 })
 
 export default connect(mapStateToProps)(ProtectedRoute);

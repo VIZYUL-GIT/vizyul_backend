@@ -8,6 +8,7 @@ import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 
 import Navigation from './components/Navigation';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import { Container, Row, Col } from './components/rb-import';
 
@@ -27,7 +28,7 @@ const AppRouter = () => (
   <Container>
     <Navigation />
     <Switch key="sw">
-      <Route path="/upload" component={UploadPage} />
+      <ProtectedRoute path="/upload" component={UploadPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/" exact component={StartPage} />
