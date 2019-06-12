@@ -6,6 +6,7 @@ import StartPage from './pages/StartPage';
 import UploadPage from './pages/UploadPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import ServersPage from './pages/ServersPage';
 
 import Navigation from './components/Navigation';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -29,6 +30,7 @@ const AppRouter = () => (
     <Navigation />
     <Switch key="sw">
       <ProtectedRoute path="/upload" component={UploadPage} />
+      <ProtectedRoute path="/servers" component={ServersPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/" exact component={StartPage} />
