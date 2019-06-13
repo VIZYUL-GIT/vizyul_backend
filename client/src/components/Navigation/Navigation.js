@@ -1,11 +1,14 @@
 import React from 'react';
+import { LinkContainer } from 'react-router-bootstrap';
 
 import { Navbar, Nav } from '../rb-import';
 import RouterNavLink from '../RouterNavLink';
 
 const Navigation = ({ authenticated, name, logoutUser }) => (
   <Navbar bg="light" expand="lg">
-    <Navbar.Brand href="/">VIZYUL</Navbar.Brand>
+    <LinkContainer to="/">
+      <Navbar.Brand>VIZYUL</Navbar.Brand>
+    </LinkContainer>
     <Navbar.Toggle aria-controls="basic-navbar-nav" />
     <Navbar.Collapse id="basic-navbar-nav">
       {authenticated
@@ -13,7 +16,7 @@ const Navigation = ({ authenticated, name, logoutUser }) => (
           <>
             <Nav className="mr-auto">
               <RouterNavLink to="/upload">Upload</RouterNavLink>
-              <Nav.Link href="/servers">Servers</Nav.Link>
+              <RouterNavLink to="/servers">Servers</RouterNavLink>
             </Nav>
             <Navbar.Text>
               Logged in as: {name}
