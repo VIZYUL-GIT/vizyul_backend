@@ -1,6 +1,6 @@
 const sql = require('../sql').tableau;
 
-const { getOne } = require('../db-utils');
+const { getOne, getManyOrNone } = require('../db-utils');
 
 function TableauRepository(db, pgp) {
   this.db = db;
@@ -24,6 +24,13 @@ function TableauRepository(db, pgp) {
     sql.findServerByServerAppId,
     'findServerByServerAppId',
     'serverAppId',
+  );
+
+  this.findTableauServersByUserId = getManyOrNone(
+    this.db,
+    sql.findTableauServersByUserId,
+    'findTableauServersByUserId',
+    'userId',
   );
 }
 

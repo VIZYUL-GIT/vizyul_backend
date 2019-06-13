@@ -22,11 +22,15 @@ const TABLEAU_SERVER_LIST_REQUEST = 'vizyul/tableau/TABLEAU_SERVER_LIST_REQUEST'
 const TABLEAU_SERVER_LIST_SUCCESS = 'vizyul/tableau/TABLEAU_SERVER_LIST_SUCCESS';
 const TABLEAU_SERVER_LIST_FAILURE = 'vizyul/tableau/TABLEAU_SERVER_LIST_FAILURE';
 
+const TABLEAU_SERVER_DATASOURCES_REQUEST = 'vizyul/tableau/TABLEAU_SERVER_DATASOURCES_REQUEST';
+const TABLEAU_SERVER_DATASOURCES_SUCCESS = 'vizyul/tableau/TABLEAU_SERVER_DATASOURCES_SUCCESS';
+const TABLEAU_SERVER_DATASOURCES_FAILURE = 'vizyul/tableau/TABLEAU_SERVER_DATASOURCES_FAILURE';
+
 const TABLEAU_SERVER_CLEAR_ALL = 'vizyul/tableau/TABLEAU_SERVER_CLEAR_ALL';
 
 // REDUCER
 
-const initialState = { servers: [] };
+const initialState = {};
 
 const reducer = createReducer(initialState, {
   [TABLEAU_SERVER_CREATE_SUCCESS]: (state, action) => {
@@ -44,6 +48,19 @@ const reducer = createReducer(initialState, {
       ],
     });
   },
+  [TABLEAU_SERVER_LIST_SUCCESS]: (state, action) => ({
+    ...state,
+    servers: action.response.servers,
+    currentServer: undefined,
+  }),
+  [TABLEAU_SERVER_DATASOURCES_SUCCESS]: (state, action) => ({
+    ...state,
+    datasources: action.response.datasources.datasource,
+  }),
+  [TABLEAU_SERVER_WORKBOOKS_SUCCESS]: (state, action) => ({
+    ...state,
+    workbooks: action.response.workbooks.workbook,
+  }),
   [TABLEAU_SERVER_SIGNIN_SUCCESS]: (state, action) => updateObject(state, {
     currentServer: state.servers.find(server => server.serverId === action.serverAppId),
   }),
@@ -72,17 +89,16 @@ export function addTableauServer(host, port, name, password, contentUrl) {
   };
 }
 
-export function getTableauServers() {
+export function getTableauServerList() {
+  console.log('getTableauServerList');
   return {
     types: [
       TABLEAU_SERVER_LIST_REQUEST,
       TABLEAU_SERVER_LIST_SUCCESS,
       TABLEAU_SERVER_LIST_FAILURE,
     ],
-    callApi: () => axios.get('/api/tableau/servers', {
-    }),
-    payload: {
-    },
+    callApi: () => axios.get('/api/tableau/servers'),
+    payload: {},
   };
 }
 
@@ -123,6 +139,28 @@ export function tableauWorkbooks(serverAppId) {
   };
 }
 
+export function tableauDataSources(serverAppId) {
+  if (!serverAppId) {
+    throw new Error(500, `Missing or invalid serverAppId: ${serverAppId}`);
+  }
+  return {
+    types: [
+      TABLEAU_SERVER_DATASOURCES_REQUEST,
+      TABLEAU_SERVER_DATASOURCES_SUCCESS,
+      TABLEAU_SERVER_DATASOURCES_FAILURE,
+    ],
+    callApi: () => axios.get('/api/tableau/datasources', {
+      params: {
+        serverAppId,
+      },
+    }),
+    payload: {
+      serverAppId,
+    },
+  };
+}
+
+
 export const clearTableauServers = makeActionCreator(TABLEAU_SERVER_CLEAR_ALL); 
 
 // SELECTORS
@@ -130,3 +168,5 @@ export const clearTableauServers = makeActionCreator(TABLEAU_SERVER_CLEAR_ALL);
 export const getServers = state => state.tableau.servers;
 
 export const getCurrentServer = state => state.tableau.currentServer;
+
+export const getDataSources = state => state.tableau.datasources;

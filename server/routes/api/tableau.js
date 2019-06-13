@@ -3,7 +3,10 @@ const debug = require('debug')("vizyul:routes:api:session")
 const passport = require('passport');
 
 const { createSession } = require('../../api/session');
-const { tableauSignIn, insertTableauServerInfo, getTableauWorkbooksForSite } = require('../../api/tableau');
+const { 
+  tableauSignIn, insertTableauServerInfo, getTableauWorkbooksForSite, getUserTableauServers,
+  getTableauDataSourcesForSite,
+} = require('../../api/tableau');
 const { authenticate, requireBody } = require('../api-utils');
 const ApiError = require('../../api/ApiError');
 
@@ -23,7 +26,13 @@ router.post('/server', authenticate, (req, res, next) => {
 
 router.get('/servers', authenticate, (req, res, next) => {
   debug('/api/tableau/servers', req.params);
-  getTableauServers
+  const { userId } = req.user;
+  getUserTableauServers(userId)
+    .then((response) => {
+      debug('/api/tableau/servers received', response);
+      res.status(200).send(response);
+    })
+    .catch(err => next(err));
 });
 
 router.post('/signin', authenticate, requireBody, (req, res, next) => {
@@ -62,6 +71,24 @@ router.get('/workbooks', authenticate, (req, res, next) => {
   getTableauWorkbooksForSite(serverAppId, serverCredentials)
     .then((response) => {
       debug('/api/tableau/workbooks received', response.data);
+      res.status(200).send(response.data);
+    })
+    .catch(err => next(err));
+})
+
+router.get('/datasources', authenticate, (req, res, next) => {
+  const { serverCredentials } = req.session;
+  const { serverAppId } = req.query;
+  debug('/api/tableau/datasources', serverCredentials, req.query);
+  if (!serverCredentials) {
+    throw new ApiError(400, 'Not signed in on Tableau server');
+  }
+  if (!serverAppId || serverAppId !== serverCredentials.serverAppId) {
+    throw new ApiError(400, 'Server App Id mismatch');
+  }
+  getTableauDataSourcesForSite(serverAppId, serverCredentials)
+    .then((response) => {
+      debug('/api/tableau/datasources received', response.data);
       res.status(200).send(response.data);
     })
     .catch(err => next(err));

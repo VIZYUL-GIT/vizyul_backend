@@ -23,7 +23,7 @@ if (!process.env.NODE_ENV) {
   debug(`NODE_ENV=${process.env.NODE_ENV}`);
 }
 
-if (!process.env.NODE_ENV === 'test') {
+if (process.env.NODE_ENV !== 'test') {
   monitor.attach(initOptions);
   debug('PostgreSQL monitoring set up');
 }

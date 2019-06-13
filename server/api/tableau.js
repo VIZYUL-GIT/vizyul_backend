@@ -26,6 +26,12 @@ const withServer = (serverAppId, op, tag = 'with-server-scope') => {
   }));
 };
 
+const apiHost = (server) => {
+  const port = server.server_port ? `:${server.server_port}` : '';
+  const url = `${server.server_host}${port}/api/${TABLEAU_SERVER_VERSION}`;
+  return url;
+}
+
 // COMPOSABLE FUNCTIONS
 // These functions may be combined within Express API handler functions. All composable functions will have an
 // extra parameter, task, which is the shared database connection to be used within the composable function.
@@ -68,8 +74,27 @@ const signIn = (_task, server) => new Promise((resolve, reject) => {
 
 const workbooks = (_task, server, serverCredentials) => new Promise((resolve, reject) => {
   debug('workbooks', server, serverCredentials);
-  const port = server.server_port ? `:${server.server_port}` : '';
-  const url = `${server.server_host}${port}/api/${TABLEAU_SERVER_VERSION}/sites/${serverCredentials.siteId}/workbooks`;
+  const url = `${apiHost(server)}/sites/${serverCredentials.siteId}/workbooks`;
+  const config = {
+    method: 'get',
+    url,
+    params: {
+      pageSize: 1000,
+      pageNumber: 1,
+    },
+    headers: {
+      'X-Tableau-Auth': serverCredentials.token,
+      Accept: 'application/json',
+    },
+  }
+  axios(config)
+    .then(response => resolve(success(response)))
+    .catch(err => reject(err));
+});
+
+const dataSources = (_task, server, serverCredentials) => new Promise((resolve, reject) => {
+  debug('dataSources', server, serverCredentials);
+  const url = `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources`;
   const config = {
     method: 'get',
     url,
@@ -113,10 +138,37 @@ const tableauSignIn = (serverAppId) => withServer(
   'tableau-signin',
 );
 
+const getUserTableauServers = (userId) => new Promise((resolve, reject) => {
+  db.tableau.findTableauServersByUserId(userId)
+    .then(result => resolve(success({ 
+      servers: result.map(s => ({ 
+        serverId: s.server_app_id, 
+        host: s.server_host, 
+        contentUrl: s.server_content_url 
+      })),
+    })))
+    .catch(err => reject(err));
+});
+
+
+// Server-specific functions
+
 const getTableauWorkbooksForSite = (serverAppId, serverCredentials) => withServer(
   serverAppId,
   (task, server) => workbooks(task, server, serverCredentials),
   'tableau-workbooks',
 );
 
-module.exports = { insertTableauServerInfo, tableauSignIn, getTableauWorkbooksForSite };
+const getTableauDataSourcesForSite = (serverAppId, serverCredentials) => withServer(
+  serverAppId,
+  (task, server) => dataSources(task, server, serverCredentials),
+  'tableau-datasources',
+);
+
+module.exports = {
+  getTableauDataSourcesForSite,
+  getUserTableauServers,
+  getTableauWorkbooksForSite, 
+  insertTableauServerInfo, 
+  tableauSignIn, 
+};

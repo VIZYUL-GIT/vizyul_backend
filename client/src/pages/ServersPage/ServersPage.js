@@ -1,79 +1,41 @@
 import React, { Component } from 'react';
 
-import { Row, Col, Table, Button } from '../../components/rb-import';
-import ServerInfoForm from '../../components/ServerInfoForm';
+import { Row, Col } from '../../components/rb-import';
 import DismissableAlert from '../../components/DismissableAlert';
+import SignedInDisplay from './SignedInDisplay';
+import ServersList from './ServersList';
 
 class ServersPage extends Component {
-  handleSignin = (serverAppId) => {
-    const { tableauSignin } = this.props;
-    tableauSignin(serverAppId)
-      .then(response => console.log('signin response', response))
-      .catch(err => console.log('signin error', err));
+  componentDidMount() {
+    console.log('componentDidMount');
+    const { getTableauServerList, currentServer } = this.props;
+    if (!currentServer) {
+      getTableauServerList();
+    }
   }
 
   render() {
-    const { servers, currentServer, tableauWorkbooks } = this.props;
+    const { servers, currentServer, tableauWorkbooks, tableauSignin, tableauDataSources } = this.props;
     console.log('serverspage.currentServer', currentServer);
-    if (currentServer) {
-      return (
-        <Row>
-          <Col>
-            <p>
-              Logged in to
-              {' '}
-              {currentServer.host}
-              {' '}
-              {currentServer.contentUrl}
-            </p>
-            <Button onClick={() => { console.log(currentServer); tableauWorkbooks(currentServer.serverId); }}>
-              GetWorkbooks
-            </Button>
-          </Col>
-        </Row>
-      );
-    }
 
     return (
       <Row>
         <Col>
           <h1>Tableau Servers</h1>
           <DismissableAlert topic="servers" />
-          {
-            (servers !== undefined && servers.length > 0)
-              ? (
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>Host</th>
-                      <th>Content Url</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {servers && servers.map(server => (
-                      <tr key={server.serverId}>
-                        <td>
-                          <Button size="sm" onClick={() => this.handleSignin(server.serverId)}>
-                            Sign in
-                          </Button>
-                        </td>
-                        <td>
-                          {server.host}
-                        </td>
-                        <td>
-                          {server.contentUrl}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              ) : (
-                <>
-                  <p>Add a new Tableau server login below:</p>
-                  <ServerInfoForm />
-                </>
-              )
+          {currentServer
+            ? (
+              <SignedInDisplay
+                currentServer={currentServer} 
+                tableauWorkbooks={tableauWorkbooks}
+                tableauDataSources={tableauDataSources}
+              />
+            ) : (
+              <ServersList 
+                servers={servers}
+                tableauSignin={tableauSignin}
+              />
+            )
           }
         </Col>
       </Row>

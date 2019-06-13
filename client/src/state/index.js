@@ -9,7 +9,7 @@ const vizyulApp = combineReducers({
   notice,
   session,
   tableau,
-  user,
+  user, 
 }); 
 
 export default vizyulApp; 
