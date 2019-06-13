@@ -3,17 +3,27 @@ const debug = require('debug')('vizyul:db:util');
 const ApiError = require('../api/ApiError');
 
 function callDb(dbfn, sql, name, ...argnames) {
+  if(typeof dbfn !== 'function') {
+    throw new ApiError(400, 'Expected a database function to be supplied');
+  }
+  if (!sql) {
+    throw new ApiError(400, `Invalid SQL query specified: ${sql}`);
+  }
+  if (!name) {
+    throw new ApiError(400, `Invalid function name specified: ${name}`);
+  }
+
   return (...args) =>  {
     const callArgs = args;
-    debug(`starting call to ${name} using ${[callArgs]}`);
+    debug(`starting sql call '${sql}' to ${name} using ${[callArgs]}`);
     return dbfn.apply(null, [sql, callArgs])
       .then(
         response => {
-          debug(`call to ${name} resulted in `, response);
+          debug(`sql call to ${name} resulted in `, response);
           return response;
         },
         error => {
-          debug(`call to ${name} resulted in `, error);
+          debug(`sql call to ${name} resulted in `, error);
           throw error;
         },
       );

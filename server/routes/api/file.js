@@ -8,7 +8,7 @@ const passport = require('passport');
 const { logFileUpload } = require('../../api/session');
 const ApiError = require('../../api/ApiError');
 const { validateUuid } = require('../../api/validate');
-const authenticate = require('../auth-check');
+const { authenticate } = require('../api-utils');
 
 const router = express.Router()
 const FILES_PATH = path.resolve(__dirname, '../../files');

@@ -10,4 +10,12 @@ const authenticate = (req, res, next) => {
   }
 };
 
-module.exports = authenticate;
+const requireBody = (req, res, next) => {
+  if (req.body) {
+    next();
+  } else {
+    res.status(400).json({ status: false, message: 'No data provided'});
+  }
+};
+
+module.exports = { authenticate, requireBody };

@@ -3,7 +3,7 @@ const debug = require('debug')("vizyul:routes:api:session")
 const passport = require('passport');
 
 const { createSession } = require('../../api/session');
-const authenticate = require('../auth-check');
+const { authenticate } = require('../api-utils');
 
 const router = express.Router()
 

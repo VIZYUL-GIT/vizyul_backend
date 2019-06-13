@@ -5,8 +5,35 @@ import ServerInfoForm from '../../components/ServerInfoForm';
 import DismissableAlert from '../../components/DismissableAlert';
 
 class ServersPage extends Component {
+  handleSignin = (serverAppId) => {
+    const { tableauSignin } = this.props;
+    tableauSignin(serverAppId)
+      .then(response => console.log('signin response', response))
+      .catch(err => console.log('signin error', err));
+  }
+
   render() {
-    const { servers } = this.props;
+    const { servers, currentServer, tableauWorkbooks } = this.props;
+    console.log('serverspage.currentServer', currentServer);
+    if (currentServer) {
+      return (
+        <Row>
+          <Col>
+            <p>
+              Logged in to
+              {' '}
+              {currentServer.host}
+              {' '}
+              {currentServer.contentUrl}
+            </p>
+            <Button onClick={() => { console.log(currentServer); tableauWorkbooks(currentServer.serverId); }}>
+              GetWorkbooks
+            </Button>
+          </Col>
+        </Row>
+      );
+    }
+
     return (
       <Row>
         <Col>

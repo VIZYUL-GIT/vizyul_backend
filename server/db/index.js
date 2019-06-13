@@ -9,6 +9,7 @@ const initOptions = {
     obj.user = new repos.User(obj, pgp);
     obj.auth = new repos.Auth(obj, pgp);
     obj.session = new repos.Session(obj, pgp);
+    obj.tableau = new repos.Tableau(obj, pgp);
   }
 }
 const pgp = require('pg-promise')(initOptions);
@@ -36,8 +37,6 @@ const DB_BASE_NAME = process.env[`DB_NAME_${process.env.NODE_ENV.toUpperCase()}`
 debug(`Connecting to PG database (${DB_BASE_NAME}) on ${DB_HOST}`);
 
 const connectionString = `postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_BASE_NAME}`
-
-debug(`Connection string: ${connectionString}`);
 const db = pgp(connectionString);
 
 module.exports = { db, errors };

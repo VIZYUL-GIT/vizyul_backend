@@ -24,4 +24,8 @@ module.exports = {
     insertFileUpload: sql('session/insertFileUpload.sql'),
     findSessionBySessionAppId: sql('session/findSessionBySessionAppId.sql'),
   },
+  tableau: {
+    insertTableauServerInfo: sql('tableau/insertTableauServerInfo.sql'),
+    findServerByServerAppId: sql('tableau/findServerByServerAppId.sql'),
+  },
 };
