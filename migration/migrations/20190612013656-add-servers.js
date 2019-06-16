@@ -19,7 +19,7 @@ exports.up = function(db) {
     user_id: {
       type: 'int',
       unsigned: true,
-      required: true,
+      notNull: true,
       primaryKey: true,
       foreignKey: {
         name: 'servers_user_id_fkey',
@@ -34,27 +34,27 @@ exports.up = function(db) {
     server_id: {
       type: 'int',
       unsigned: true,
-      required: true,
+      notNull: true,
       primaryKey: true,
       autoIncrement: true,
     },
     server_app_id: {
       type: 'string',
-      required: true,
+      notNull: true,
       unique: true,
     },
     server_host: {
       type: 'string',
-      required: true,
+      notNull: true,
     },
     server_port: 'string',
     server_username: {
       type: 'string',
-      required: true,
+      notNull: true,
     },
     server_password: {
       type: 'string',
-      required: true,
+      notNull: true,
     },
     server_content_url: 'string',
   });

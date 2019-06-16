@@ -18,15 +18,15 @@ exports.up = function(db) {
   return db.createTable('user_sessions', {
     sid: {
       type: 'string',
-      required: true,
+      notNull: true,
     },
     sess: {
       type: 'string',
-      required: true,
+      notNull: true,
     },
     expire: {
       type: 'timestamp',
-      required: true,
+      notNull: true,
     },
   });
 };
