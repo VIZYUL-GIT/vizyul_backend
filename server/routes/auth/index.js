@@ -7,7 +7,7 @@ const { authenticate } = require('../api-utils');
 const router = express.Router();
 
 router.post('/login', passport.authenticate('local'), (req, res) => {
-  res.status(200).json({ status: true, user: req.user });
+  res.status(200).json({ status: true, response: { user: req.user } });
 });
 
 router.post('/logout', authenticate, (req, res) => {
@@ -15,6 +15,7 @@ router.post('/logout', authenticate, (req, res) => {
   req.logout();
   req.session.destroy((err) => {
     if (err) {
+      debug(`Error logging out: ${err}`);
       next(err);
     } else {
       res.status(200).json({ status: true, message: 'Logged out.' });

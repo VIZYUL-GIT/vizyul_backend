@@ -22,7 +22,9 @@ const fileStorage = multer.diskStorage({
         validateUuid(req.body.sessionAppId, `Invalid application session id: ${req.body.sessionAppId}`);
 
         const sessionFolder = path.resolve(FILES_PATH, req.body.sessionAppId);
-        fs.mkdirSync(sessionFolder, { recursive: true });
+        if (!fs.existsSync(sessionFolder)) {
+          fs.mkdirSync(sessionFolder, { recursive: true });
+        }
         
         cb(null, sessionFolder);
       } catch (err) {

@@ -1,7 +1,7 @@
 import axios from "axios";
 import _ from 'underscore';
 
-import { createReducer, makeActionCreator, updateObject } from "../utils";
+import { createReducer, makeActionCreator, updateObject, updateItemInArray } from "../utils";
 import { LOGOUT_USER_SUCCESS } from "./user";
 
 // ACTION TYPES
@@ -26,7 +26,18 @@ const TABLEAU_SERVER_DATASOURCES_REQUEST = 'vizyul/tableau/TABLEAU_SERVER_DATASO
 const TABLEAU_SERVER_DATASOURCES_SUCCESS = 'vizyul/tableau/TABLEAU_SERVER_DATASOURCES_SUCCESS';
 const TABLEAU_SERVER_DATASOURCES_FAILURE = 'vizyul/tableau/TABLEAU_SERVER_DATASOURCES_FAILURE';
 
+const TABLEAU_SERVER_CONNECTIONS_REQUEST = 'vizyul/tableau/TABLEAU_SERVER_CONNECTIONS_REQUEST';
+const TABLEAU_SERVER_CONNECTIONS_SUCCESS = 'vizyul/tableau/TABLEAU_SERVER_CONNECTIONS_SUCCESS';
+const TABLEAU_SERVER_CONNECTIONS_FAILURE = 'vizyul/tableau/TABLEAU_SERVER_CONNECTIONS_FAILURE';
+
+const TABLEAU_CONNECTION_UPDATE_REQUEST = 'vizyul/tableau/TABLEAU_CONNECTION_UPDATE_REQUEST';
+const TABLEAU_CONNECTION_UPDATE_SUCCESS = 'vizyul/tableau/TABLEAU_CONNECTION_UPDATE_SUCCESS';
+const TABLEAU_CONNECTION_UPDATE_FAILURE = 'vizyul/tableau/TABLEAU_CONNECTION_UPDATE_FAILURE';
+
 const TABLEAU_SERVER_CLEAR_ALL = 'vizyul/tableau/TABLEAU_SERVER_CLEAR_ALL';
+
+const TABLEAU_SET_CURRENT_DATASOURCE = 'vizyul/tableau/TABLEAU_SET_CURRENT_DATASOURCE';
+const TABLEAU_SET_CURRENT_DATASOURCE_CONNECTION = 'vizyul/tableau/TABLEAU_SET_CURRENT_DATASOURCE_CONNECTION';
 
 // REDUCER
 
@@ -55,15 +66,42 @@ const reducer = createReducer(initialState, {
   }),
   [TABLEAU_SERVER_DATASOURCES_SUCCESS]: (state, action) => ({
     ...state,
-    datasources: action.response.datasources.datasource,
+    datasources: action.response,
+    currentDatasource: action.response[0],
   }),
-  [TABLEAU_SERVER_WORKBOOKS_SUCCESS]: (state, action) => ({
+  [TABLEAU_SERVER_CONNECTIONS_SUCCESS]: (state, action) => ({
     ...state,
-    workbooks: action.response.workbooks.workbook,
+    datasources: updateItemInArray(
+      state.datasources,
+      item => item.id === action.datasourceId,
+      item => ({ ...item, connections: action.response }),
+    ),
   }),
+  [TABLEAU_SERVER_WORKBOOKS_SUCCESS]: (state, action) => {
+    return ({
+      ...state,
+      workbooks: action.response,
+    });
+  },
   [TABLEAU_SERVER_SIGNIN_SUCCESS]: (state, action) => updateObject(state, {
     currentServer: state.servers.find(server => server.serverId === action.serverAppId),
   }),
+  [TABLEAU_SET_CURRENT_DATASOURCE]: (state, action) => {
+    const found = state.datasources.find(ds => ds.id === action.datasourceId);
+
+    return updateObject(state, {
+      currentDatasource: found,
+      ...found && { currentDatasourceConnection: (found.connections || [])[0] }
+    });
+  },
+  [TABLEAU_SET_CURRENT_DATASOURCE_CONNECTION]: (state, action) => {
+    const found = ((state.currentDatasource || {}).connections || [])
+      .find(c => c.id === action.connectionId);
+
+    return updateObject(state, {
+      currentDatasourceConnection: found,
+    });
+  },
   [TABLEAU_SERVER_SIGNIN_FAILURE]: state => _.omit(state, ['currentServer']),
   [TABLEAU_SERVER_CLEAR_ALL]: () => initialState,
   [LOGOUT_USER_SUCCESS]: () => initialState,
@@ -143,6 +181,7 @@ export function tableauDataSources(serverAppId) {
   if (!serverAppId) {
     throw new Error(500, `Missing or invalid serverAppId: ${serverAppId}`);
   }
+
   return {
     types: [
       TABLEAU_SERVER_DATASOURCES_REQUEST,
@@ -160,8 +199,74 @@ export function tableauDataSources(serverAppId) {
   };
 }
 
+export function tableauDatasourceConnections(serverAppId, datasourceId) {
+  if (!serverAppId) {
+    throw new Error(500, `Missing or invalid serverAppId: ${serverAppId}`);
+  }
+  if (!datasourceId) {
+    throw new Error(500, `Missing or invalid datasourceId: ${datasourceId}`);
+  }
 
-export const clearTableauServers = makeActionCreator(TABLEAU_SERVER_CLEAR_ALL); 
+  return {
+    types: [
+      TABLEAU_SERVER_CONNECTIONS_REQUEST,
+      TABLEAU_SERVER_CONNECTIONS_SUCCESS,
+      TABLEAU_SERVER_CONNECTIONS_FAILURE,
+    ],
+    shouldCallApi: (state) => !(state.tableau.datasources.find(d => d.id === datasourceId) || {}).connections,
+    callApi: () => axios.get('/api/tableau/datasource/connections', {
+      params: {
+        serverAppId,
+        datasourceId,
+      },
+    }),
+    payload: {
+      serverAppId,
+      datasourceId,
+    },
+  };
+}
+
+export function updateTableauDatasourceConnection(serverAppId, connection, datasourceId, connectionId) {
+  if (!serverAppId) {
+    throw new Error(`Missing or invalid serverAppId: ${serverAppId}`);
+  }
+  if (!datasourceId) {
+    throw new Error(`Missing or invalid datasourceId: ${datasourceId}`);
+  }
+  if (!connectionId) {
+    throw new Error(`Missing or invalid connectionId: ${connectionId}`);
+  }
+  if (!connection) {
+    throw new Error(`Missing or invalid connection: ${connection}`);
+  }
+
+  console.log('update... args=', arguments);
+
+  return {
+    types: [
+      TABLEAU_CONNECTION_UPDATE_REQUEST,
+      TABLEAU_CONNECTION_UPDATE_SUCCESS,
+      TABLEAU_CONNECTION_UPDATE_FAILURE,
+    ],
+    callApi: () => axios.put('/api/tableau/connection', {
+      serverAppId,
+      datasourceId,
+      connectionId,
+      connection,
+    }),
+    payload: {
+      serverAppId,
+      datasourceId,
+    },
+  };
+}
+
+export const clearTableauServers = makeActionCreator(TABLEAU_SERVER_CLEAR_ALL);
+
+export const setCurrentDatasource = makeActionCreator(TABLEAU_SET_CURRENT_DATASOURCE, 'datasourceId');
+
+export const setCurrentDatasourceConnection = makeActionCreator(TABLEAU_SET_CURRENT_DATASOURCE_CONNECTION, 'connectionId');
 
 // SELECTORS
 
@@ -170,3 +275,7 @@ export const getServers = state => state.tableau.servers;
 export const getCurrentServer = state => state.tableau.currentServer;
 
 export const getDataSources = state => state.tableau.datasources;
+
+export const getCurrentDataSource = state => state.tableau.currentDatasource
+
+export const getCurrentDatasourceConnection = state => state.tableau.currentDatasourceConnection;

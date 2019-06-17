@@ -1,13 +1,16 @@
 const axios = require('axios');
 const uuid = require('uuid/v4');
 const debug = require('debug')('vizyul:api:tableau');
+const _ = require('underscore');
+const moment = require('moment');
 
-const { db, errors } = require('../db');
+const { db, pgp, errors } = require('../db');
 const ApiError = require('./ApiError');
 const { success, encrypt, decrypt } = require('./util');
 const { validateUuid } = require('./validate');
 
 const TABLEAU_SERVER_VERSION = '3.4';
+const TABLEAU_SERVER_PAGE_SIZE = 1;
 
 // UTILITY FUNCTIONS
 // These functions provide additional capabilities that may be shared among composable or direct handlers.
@@ -45,7 +48,7 @@ const signIn = (_task, server) => new Promise((resolve, reject) => {
   const password = decrypt(server_password);
   const url = `${server_host}${server_port ? `:${server_port}` : ''}/api/${TABLEAU_SERVER_VERSION}/auth/signin`;
 
-  debug(`api.tableau.tableauSignin received`, server);
+  debug(`signIn received`, server);
   debug('Connecting to Tableau server on ', url);
 
   const config = {
@@ -68,49 +71,121 @@ const signIn = (_task, server) => new Promise((resolve, reject) => {
   };
 
   axios(config)
-    .then(result => resolve(success(result)))
+    .then(result => { debug('result: ', result.data); resolve(result.data); })
     .catch(err => reject(err));
 });
 
-const workbooks = (_task, server, serverCredentials) => new Promise((resolve, reject) => {
-  debug('workbooks', server, serverCredentials);
-  const url = `${apiHost(server)}/sites/${serverCredentials.siteId}/workbooks`;
+const getPaginated = (
+  token, url, responseMapper, dbfn = (dsl) => Promise.resolve(dsl), params = {},
+) => new Promise((resolve,reject) => {
+  console.log('typeof url', typeof url);
   const config = {
     method: 'get',
     url,
     params: {
-      pageSize: 1000,
+      ...params,
+      pageSize: TABLEAU_SERVER_PAGE_SIZE,
       pageNumber: 1,
     },
     headers: {
-      'X-Tableau-Auth': serverCredentials.token,
+      'X-Tableau-Auth': token,
       Accept: 'application/json',
     },
-  }
+  };
+
   axios(config)
-    .then(response => resolve(success(response)))
+    .then(response => {
+      const { pageNumber, pageSize, totalAvailable } = response.data.pagination;
+
+      if (totalAvailable > pageSize) {
+        const range = _.range(+pageNumber + 1, Math.ceil(+totalAvailable / +pageSize) + 1);
+        const pages = range.map(p => axios(Object.assign({}, config, { params: { ...config.params, pageNumber: p }})));
+
+        return axios.all(pages)
+          .then(responses => _.flatten([
+            responseMapper(response.data), 
+            responses.map(r => responseMapper(r.data))
+          ]))
+          .then(mapped => dbfn(mapped))
+          .then(mapped => resolve(mapped));
+      } else {
+        const mapped = responseMapper(response.data);
+        return dbfn(mapped).then(final => resolve(final));
+      }
+    })
     .catch(err => reject(err));
 });
 
-const dataSources = (_task, server, serverCredentials) => new Promise((resolve, reject) => {
-  debug('dataSources', server, serverCredentials);
-  const url = `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources`;
+const workbooks = (_task, server, serverCredentials) => getPaginated(
+  serverCredentials.token,
+  `${apiHost(server)}/sites/${serverCredentials.siteId}/workbooks`,
+  (data) => data.workbooks.workbook,
+);
+
+const dataSources = (task, server, session, serverCredentials) => getPaginated(
+  serverCredentials.token,
+  `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources`,
+  (data) => data.datasources.datasource,
+  (sources) => task.tableau.insertServerDatasources(session, sources),
+);
+
+const datasourceConnections = (_task, server, datasourceId, serverCredentials) => new Promise((resolve, reject) => {
   const config = {
     method: 'get',
-    url,
-    params: {
-      pageSize: 1000,
-      pageNumber: 1,
-    },
+    url: `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources/${datasourceId}/connections`,
     headers: {
       'X-Tableau-Auth': serverCredentials.token,
       Accept: 'application/json',
     },
-  }
+  };
   axios(config)
-    .then(response => resolve(success(response)))
+    .then(response => { debug('datasources response -> ', response); resolve(response.data.connections.connection); })
     .catch(err => reject(err));
 });
+
+const updateDatasource = (task, server, connection, datasourceId, connectionId, serverCredentials) => new Promise((resolve, reject) => {
+  const config = {
+    method: 'put',
+    url: `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources/${datasourceId}/connections/${connectionId}`,
+    headers: {
+      'X-Tableau-Auth': serverCredentials.token,
+      Accept: 'application/json',
+    },
+    data: {
+      connection,
+    }
+  };
+  axios(config)
+    .then(response => {
+      debug('updateDatasource response -> ', response); 
+      resolve(response.data); 
+    })
+    .catch(err => { debug('here ->', err.response.data); reject(err); });
+});
+
+const createServerSession = (task, server, serverSessionAppId, serverSessionName) => new Promise((resolve, reject) => {
+  const { user_id, server_id } = server;
+  const actualSessionAppId = serverSessionAppId !== undefined ? sessionAppId : uuid();
+  const actualSessionName = serverSessionName !== undefined ? sessionName : `Session_${moment().format('YYYY-MM-DD-HH-mm-ss')}`;
+
+  console.log('createServerSession', server, serverSessionAppId, serverSessionName);
+
+  task.tableau.insertServerSession(user_id, server_id, actualSessionAppId, actualSessionName)
+    .then(({ server_session_id, server_session_app_id, server_session_name }) => resolve({
+      ...server,
+      serverSessionId: server_session_id,
+      serverSessionAppId: server_session_app_id,
+      serverSessionName: server_session_name,
+    }))
+    .catch(err => {
+      if (err.code === '23505') { // unique_violation
+        reject(new ApiError(400, 'Session ids must be unique'));
+      } else {
+        reject(err);
+      }
+    });
+});
+
 
 //======================================================================================================================
 // Exported API functions
@@ -155,14 +230,30 @@ const getUserTableauServers = (userId) => new Promise((resolve, reject) => {
 
 const getTableauWorkbooksForSite = (serverAppId, serverCredentials) => withServer(
   serverAppId,
-  (task, server) => workbooks(task, server, serverCredentials),
+  (task, server) => workbooks(task, server, serverCredentials).then(response => success(response)),
   'tableau-workbooks',
 );
 
 const getTableauDataSourcesForSite = (serverAppId, serverCredentials) => withServer(
   serverAppId,
-  (task, server) => dataSources(task, server, serverCredentials),
+  (task, server) => createServerSession(task, server)
+    .then(session => dataSources(task, server, session, serverCredentials))
+    .then(response => { const result = success(response); debug('response here', result); return result; }),
   'tableau-datasources',
+);
+
+const getTableauDatasourceConnections = (serverAppId, serverCredentials, datasourceId) => withServer(
+  serverAppId,
+  (task, server) => datasourceConnections(task, server, datasourceId, serverCredentials)
+    .then(response => success(response)),
+  'tableau-datasource-connections',
+);
+
+const updateTableauDatasourceConnection = (serverAppId, serverCredentials, connection, datasourceId, connectionId) => withServer(
+  serverAppId,
+  (task, server) => updateDatasource(task, server, connection, datasourceId, connectionId, serverCredentials)
+    .then(response => success(response)),
+  'tableau-update-connection',
 );
 
 module.exports = {
@@ -171,4 +262,6 @@ module.exports = {
   getTableauWorkbooksForSite, 
   insertTableauServerInfo, 
   tableauSignIn, 
+  getTableauDatasourceConnections,
+  updateTableauDatasourceConnection,
 };

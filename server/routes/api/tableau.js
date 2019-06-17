@@ -1,11 +1,11 @@
 const express = require('express');
-const debug = require('debug')("vizyul:routes:api:session")
+const debug = require('debug')("vizyul:routes:api:tableau")
 const passport = require('passport');
 
 const { createSession } = require('../../api/session');
 const { 
   tableauSignIn, insertTableauServerInfo, getTableauWorkbooksForSite, getUserTableauServers,
-  getTableauDataSourcesForSite,
+  getTableauDataSourcesForSite, getTableauDatasourceConnections, updateTableauDatasourceConnection,
 } = require('../../api/tableau');
 const { authenticate, requireBody } = require('../api-utils');
 const ApiError = require('../../api/ApiError');
@@ -39,10 +39,10 @@ router.post('/signin', authenticate, requireBody, (req, res, next) => {
   const { serverAppId } = req.body;
   debug(`/api/tableau/signin [serverAppId=${serverAppId}]`);
   tableauSignIn(serverAppId)
-    .then((response) => {
-      debug('/api/tableau/signin received', response.data);
+    .then((result) => {
+      debug('/api/tableau/signin received', result);
       const session = req.session;
-      const { site, user, token } = response.data.credentials;
+      const { site, user, token } = result.response.credentials;
 
       const serverCredentials = {
         siteId: site.id,
@@ -70,15 +70,16 @@ router.get('/workbooks', authenticate, (req, res, next) => {
   }
   getTableauWorkbooksForSite(serverAppId, serverCredentials)
     .then((response) => {
-      debug('/api/tableau/workbooks received', response.data);
-      res.status(200).send(response.data);
+      debug('/api/tableau/workbooks received', response);
+      res.status(200).send(response);
     })
     .catch(err => next(err));
-})
+});
 
 router.get('/datasources', authenticate, (req, res, next) => {
   const { serverCredentials } = req.session;
   const { serverAppId } = req.query;
+
   debug('/api/tableau/datasources', serverCredentials, req.query);
   if (!serverCredentials) {
     throw new ApiError(400, 'Not signed in on Tableau server');
@@ -86,12 +87,52 @@ router.get('/datasources', authenticate, (req, res, next) => {
   if (!serverAppId || serverAppId !== serverCredentials.serverAppId) {
     throw new ApiError(400, 'Server App Id mismatch');
   }
+
   getTableauDataSourcesForSite(serverAppId, serverCredentials)
     .then((response) => {
-      debug('/api/tableau/datasources received', response.data);
-      res.status(200).send(response.data);
+      debug('/api/tableau/datasources received', response);
+      res.status(200).send(response);
     })
     .catch(err => next(err));
-})
+});
+
+router.get('/datasource/connections', authenticate, (req, res, next) => {
+  const { datasourceId, serverAppId } = req.query;
+  const { serverCredentials } = req.session;
+  if(!serverCredentials) {
+    next(new ApiError(400, 'Not signed in on Tableau server'));
+  } else {
+    getTableauDatasourceConnections(serverAppId, serverCredentials, datasourceId)
+    .then((response) => {
+      debug('here ------> ', JSON.stringify(response));
+      res.status(200).send(response);
+    })
+    .catch(err => next(err));
+  }
+});
+
+router.put('/connection', authenticate, (req, res, next) => {
+  const { connection, serverAppId, datasourceId, connectionId } = req.body;
+  const { serverCredentials } = req.session;
+  debug('req.body===', req.body, serverAppId);
+  if (!serverCredentials) {
+    next(new ApiError(400, 'Not signed in on Tableau server'));
+  } else {
+    updateTableauDatasourceConnection(serverAppId, serverCredentials, connection, datasourceId, connectionId)
+      .then((response) => {
+        debug('PUT /api/tableau/connection returned', response);
+        res.status(200).send(response);
+      })
+      .catch(err => { debug('/connection error', err); next(err); });
+  }
+});
+
+router.get('/monster', authenticate, (req, res, next) => {
+  const { serverCredentials } = req.session;
+  const { serverAppId } = req.query;
+  
+  createServerSession(serverAppId)
+    .then()
+});
 
 module.exports = router

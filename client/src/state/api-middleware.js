@@ -90,8 +90,17 @@ export default function callApiMiddleware({ dispatch, getState }) {
       .then(
         successResponse => {
           const response = axiosSuccessObject(successResponse);
-          console.log('successResponse => response', successResponse, response)
-          dispatch(Object.assign({}, payload, { response, type: successType }));
+          const result = Object.assign({}, payload, response, { type: successType });
+
+          // Check result to ensure consistent handling
+          if (!result.message && !result.response ) {
+            throw new Error(`Action missing response: ${JSON.stringify(result)}`);
+          }
+          if (!result.message && result.response.response) {
+            throw new Error(`Action with redundant response: ${JSON.stringify(result)}`);
+          }
+
+          dispatch(result);
           return response;
         },
         errorResponse => {

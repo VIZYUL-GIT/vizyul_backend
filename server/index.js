@@ -36,10 +36,29 @@ configurePassport(passport);
 
 // TODO Implement CSP via Helmet
 
-app
+const sessionConfig = {
+  store: new pgSession({
+    pgPromise: db,
+    schemaName: 'webapp',
+    tableName: 'user_sessions',
+  }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  cookie: { maxAge: 60 * 60 * 1000 }, // 1 hr
+  saveUninitialized: false,
+};
+
+// Use secure session cookies in production only
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+
 
   // EXPRESS STACK CONFIGURATION
 
+app
   .use(helmet())
   .disable('x-powered-by')
   .use(cors())
@@ -50,17 +69,7 @@ app
   .use(express.json({ limit: '50mb' }))
   .use(express.urlencoded({ extended: false, limit: '50mb' }))
   .use(cookieParser())
-  .use(session({
-    store: new pgSession({
-      pgPromise: db,
-      schemaName: 'webapp',
-      tableName: 'user_sessions',
-    }),
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    cookie: { maxAge: 60 * 60 * 1000 }, // 1 hr
-    saveUninitialized: false,
-  }))
+  .use(session(sessionConfig))
   .use(passport.initialize())
   .use(passport.session())
 

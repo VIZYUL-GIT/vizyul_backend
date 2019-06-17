@@ -1,6 +1,6 @@
 const debug = require('debug')('vizyul:api:util');
 
-const success = (result) => Object.assign({}, result, { status: true });
+const success = (result) => Object.assign({}, { response: result }, { status: true });
 
 const crypto = require('crypto');
 const algorithm = 'aes-256-cbc';

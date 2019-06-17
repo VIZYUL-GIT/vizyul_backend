@@ -28,5 +28,6 @@ module.exports = {
     insertTableauServerInfo: sql('tableau/insertTableauServerInfo.sql'),
     findServerByServerAppId: sql('tableau/findServerByServerAppId.sql'),
     findTableauServersByUserId: sql('tableau/findTableauServersByUserId.sql'),
+    insertServerSession: sql('tableau/insertServerSession.sql'),
   },
 };

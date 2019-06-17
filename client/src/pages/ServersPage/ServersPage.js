@@ -15,7 +15,12 @@ class ServersPage extends Component {
   }
 
   render() {
-    const { servers, currentServer, tableauWorkbooks, tableauSignin, tableauDataSources } = this.props;
+    const {
+      servers, currentServer, tableauWorkbooks, tableauSignin, tableauDataSources,
+      datasources, currentDatasource, tableauDatasourceConnections, setCurrentDatasource,
+      setCurrentDatasourceConnection, currentDatasourceConnection, updateTableauDatasourceConnection,
+      setNotice,
+    } = this.props;
     console.log('serverspage.currentServer', currentServer);
 
     return (
@@ -29,9 +34,17 @@ class ServersPage extends Component {
                 currentServer={currentServer} 
                 tableauWorkbooks={tableauWorkbooks}
                 tableauDataSources={tableauDataSources}
+                datasources={datasources}
+                currentDatasource={currentDatasource}
+                tableauDatasourceConnections={tableauDatasourceConnections}
+                setCurrentDatasource={setCurrentDatasource}
+                setCurrentDatasourceConnection={setCurrentDatasourceConnection}
+                currentDatasourceConnection={currentDatasourceConnection}
+                updateTableauDatasourceConnection={updateTableauDatasourceConnection}
+                setNotice={setNotice}
               />
             ) : (
-              <ServersList 
+              <ServersList
                 servers={servers}
                 tableauSignin={tableauSignin}
               />

@@ -34,6 +34,7 @@ export const updateItemInArray = (array, match, update) => {
 
 export const createReducer = (initialState, handlers) => (state = initialState, action) => {
   if (handlers.hasOwnProperty(action.type)) {
+    console.log('reducer -> ', action);
     return handlers[action.type](state, action);
   }
   return state;

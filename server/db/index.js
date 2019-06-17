@@ -39,4 +39,4 @@ debug(`Connecting to PG database (${DB_BASE_NAME}) on ${DB_HOST}`);
 const connectionString = `postgresql://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_BASE_NAME}`
 const db = pgp(connectionString);
 
-module.exports = { db, errors };
+module.exports = { db, pgp, errors };
