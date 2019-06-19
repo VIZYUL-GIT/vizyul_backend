@@ -52,10 +52,15 @@ const extractSuccess = success => {
  * @param {Array, object} successResponse 
  */
 const axiosSuccessObject = successResponse => {
+  console.log('analyzing successResponse', successResponse);
   if (Array.isArray(successResponse)) {
-    return successResponse.map(s => extractSuccess(s));
+    const result = successResponse.map(s => extractSuccess(s));
+    console.log('  --> (array) ', result);
+    return { response: result };
   }
-  return extractSuccess(successResponse);
+  const result = extractSuccess(successResponse);
+  console.log('  --> (single) ', result);
+  return result;
 };
 
 export default function callApiMiddleware({ dispatch, getState }) {
@@ -91,12 +96,12 @@ export default function callApiMiddleware({ dispatch, getState }) {
         successResponse => {
           const response = axiosSuccessObject(successResponse);
           const result = Object.assign({}, payload, response, { type: successType });
-
+          
           // Check result to ensure consistent handling
           if (!result.message && !result.response ) {
             throw new Error(`Action missing response: ${JSON.stringify(result)}`);
           }
-          if (!result.message && result.response.response) {
+          if ((result.response || {}).response) {
             throw new Error(`Action with redundant response: ${JSON.stringify(result)}`);
           }
 

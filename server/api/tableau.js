@@ -122,14 +122,18 @@ const workbooks = (_task, server, serverCredentials) => getPaginated(
   (data) => data.workbooks.workbook,
 );
 
-const dataSources = (task, server, session, serverCredentials) => getPaginated(
+const dataSources = (
+  task, server, session, serverCredentials,
+) => getPaginated(
   serverCredentials.token,
   `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources`,
   (data) => data.datasources.datasource,
   (sources) => task.tableau.insertServerDatasources(session, sources),
 );
 
-const datasourceConnections = (_task, server, datasourceId, serverCredentials) => new Promise((resolve, reject) => {
+const datasourceConnections = (
+  _task, server, datasourceId, serverCredentials,
+) => new Promise((resolve, reject) => {
   const config = {
     method: 'get',
     url: `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources/${datasourceId}/connections`,
@@ -143,7 +147,9 @@ const datasourceConnections = (_task, server, datasourceId, serverCredentials) =
     .catch(err => reject(err));
 });
 
-const updateDatasource = (task, server, connection, datasourceId, connectionId, serverCredentials) => new Promise((resolve, reject) => {
+const updateDatasource = (
+  _task, server, connection, datasourceId, connectionId, serverCredentials,
+) => new Promise((resolve, reject) => {
   const config = {
     method: 'put',
     url: `${apiHost(server)}/sites/${serverCredentials.siteId}/datasources/${datasourceId}/connections/${connectionId}`,
@@ -163,7 +169,18 @@ const updateDatasource = (task, server, connection, datasourceId, connectionId, 
     .catch(err => { debug('here ->', err.response.data); reject(err); });
 });
 
-const createServerSession = (task, server, serverSessionAppId, serverSessionName) => new Promise((resolve, reject) => {
+const updateServer = (
+  task, server, host, port, username, password, contentUrl,
+) => new Promise((resolve, reject) => {
+  const { user_id, server_id } = server;
+  task.tableau.updateServer(user_id, server_id, host, port, username, password, contentUrl)
+    .then(() => resolve({ message: 'Server info updated' }))
+    .catch(err => reject(err));
+})
+
+const createServerSession = (
+  task, server, serverSessionAppId, serverSessionName,
+) => new Promise((resolve, reject) => {
   const { user_id, server_id } = server;
   const actualSessionAppId = serverSessionAppId !== undefined ? sessionAppId : uuid();
   const actualSessionName = serverSessionName !== undefined ? sessionName : `Session_${moment().format('YYYY-MM-DD-HH-mm-ss')}`;
@@ -217,9 +234,11 @@ const getUserTableauServers = (userId) => new Promise((resolve, reject) => {
   db.tableau.findTableauServersByUserId(userId)
     .then(result => resolve(success({ 
       servers: result.map(s => ({ 
-        serverId: s.server_app_id, 
-        host: s.server_host, 
-        contentUrl: s.server_content_url 
+        serverAppId: s.server_app_id, 
+        host: s.server_host,
+        port: s.server_port,
+        userName: s.server_username,
+        contentUrl: s.server_content_url,
       })),
     })))
     .catch(err => reject(err));
@@ -227,6 +246,14 @@ const getUserTableauServers = (userId) => new Promise((resolve, reject) => {
 
 
 // Server-specific functions
+
+const updateTableauServerInfo = (
+  serverAppId, host, port, username, password, contentUrl,
+) => withServer(
+  serverAppId,
+  (task, server) => updateServer(task, server, host, port, username, encrypt(password), contentUrl),
+  'tableau-update-server',
+);
 
 const getTableauWorkbooksForSite = (serverAppId, serverCredentials) => withServer(
   serverAppId,
@@ -264,4 +291,5 @@ module.exports = {
   tableauSignIn, 
   getTableauDatasourceConnections,
   updateTableauDatasourceConnection,
+  updateTableauServerInfo,
 };

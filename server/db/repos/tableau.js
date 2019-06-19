@@ -1,7 +1,7 @@
 const sql = require('../sql').tableau;
 const uuid = require('uuid/v4');
 
-const { getOne, getManyOrNone } = require('../db-utils');
+const { getOne, getManyOrNone, getNone } = require('../db-utils');
 
 function TableauRepository(db, pgp) {
   this.db = db;
@@ -63,6 +63,19 @@ function TableauRepository(db, pgp) {
     sql.findTableauServersByUserId,
     'findTableauServersByUserId',
     'userId',
+  );
+
+  this.updateServer = getNone(
+    this.db,
+    sql.updateTableauServer,
+    'updateServer',
+    'userId', 
+    'serverId', 
+    'host', 
+    'port', 
+    'username', 
+    'password', 
+    'contentUrl',
   );
 
   this.insertServerDatasources = (session, sources) => {

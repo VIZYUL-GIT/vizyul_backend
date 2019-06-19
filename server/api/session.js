@@ -72,7 +72,7 @@ const createSession = (
 
 const logFileUpload = (sessionAppId, file) => withSession(
   sessionAppId, 
-  (task, session) => fileUpload(task, session, file).then(response => success({ response })),
+  (task, session) => fileUpload(task, session, file).then(response => success(response)),
   'log-file-upload',
 );
 

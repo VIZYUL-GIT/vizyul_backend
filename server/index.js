@@ -56,7 +56,7 @@ if (app.get('env') === 'production') {
 }
 
 
-  // EXPRESS STACK CONFIGURATION
+// EXPRESS STACK CONFIGURATION
 
 app
   .use(helmet())
@@ -105,9 +105,14 @@ app
     if (err instanceof ApiError) {
       debug(`ApiError: status=${err.status}, message="${err.message}, trace=${err.stack}"`);
       res.status(err.status).json({ status: false, message: err.message });
-    } else {
-      debug("Other error occurred", err, err.stack);
-      res.status(err.status || HTTP_SERVER_ERROR).json({ status: false, error: err.message });
+    } else if (err.isAxiosError && err.response) {
+      // The server provided a response
+      if (err.response) {
+        res.status(err.status || HTTP_SERVER_ERROR).json(err.response.data);
+      } else {
+        debug("Other error occurred", err, err.stack);
+        res.status(err.status || HTTP_SERVER_ERROR).json({ status: false, error: err.message });
+      }
     }
   });
 

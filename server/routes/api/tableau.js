@@ -6,11 +6,23 @@ const { createSession } = require('../../api/session');
 const { 
   tableauSignIn, insertTableauServerInfo, getTableauWorkbooksForSite, getUserTableauServers,
   getTableauDataSourcesForSite, getTableauDatasourceConnections, updateTableauDatasourceConnection,
+  updateTableauServerInfo,
 } = require('../../api/tableau');
 const { authenticate, requireBody } = require('../api-utils');
 const ApiError = require('../../api/ApiError');
 
 const router = express.Router()
+
+router.patch('/server/update', authenticate, (req, res, next) => {
+  const { serverAppId, host, port, name, password, contentUrl } = req.body;
+  debug('/server/update', req.body, serverAppId);
+  updateTableauServerInfo(serverAppId, host, port, name, password, contentUrl)
+    .then((response) => {
+      debug('/api/tableau/server received', response);
+      res.status(201).send(response);
+    })
+    .catch(err => next(err));
+})
 
 router.post('/server', authenticate, (req, res, next) => {
   const { host, port, name, password, contentUrl } = req.body;
@@ -27,6 +39,7 @@ router.post('/server', authenticate, (req, res, next) => {
 router.get('/servers', authenticate, (req, res, next) => {
   debug('/api/tableau/servers', req.params);
   const { userId } = req.user;
+  
   getUserTableauServers(userId)
     .then((response) => {
       debug('/api/tableau/servers received', response);

@@ -12,8 +12,9 @@ import Navigation from './components/Navigation';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { Container, Row, Col } from './components/rb-import';
+import AutoLogout from './components/AutoLogout';
 
-function NoMatch({ location }) {
+export function NoMatch({ location }) {
   return (
     <Row>
       <Col>
@@ -26,17 +27,19 @@ function NoMatch({ location }) {
 }
 
 const AppRouter = () => (
-  <Container>
-    <Navigation />
-    <Switch key="sw">
-      <ProtectedRoute path="/upload" component={UploadPage} />
-      <ProtectedRoute path="/servers" component={ServersPage} />
-      <Route path="/register" component={RegisterPage} />
-      <Route path="/login" component={LoginPage} />
-      <Route path="/" exact component={StartPage} />
-      <Route component={NoMatch} />
-    </Switch>
-  </Container>
+  <AutoLogout>
+    <Container>
+      <Navigation />
+      <Switch key="sw">
+        <ProtectedRoute path="/upload" component={UploadPage} />
+        <ProtectedRoute path="/servers" component={ServersPage} />
+        <Route path="/register" component={RegisterPage} />
+        <Route path="/login" component={LoginPage} />
+        <Route path="/" exact component={StartPage} />
+        <Route component={NoMatch} />
+      </Switch>
+    </Container>
+  </AutoLogout>
 );
 
 export default withRouter(AppRouter);

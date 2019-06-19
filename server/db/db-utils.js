@@ -42,4 +42,8 @@ function getManyOrNone(db, sql, name, ...argnames) {
   return callDb(db.manyOrNone, sql, name, argnames);
 }
 
-module.exports = { getOne, getResult, getManyOrNone };
+function getNone(db, sql, name, ...argnames) {
+  return callDb(db.none, sql, name, argnames);
+}
+
+module.exports = { getOne, getResult, getManyOrNone, getNone };

@@ -9,8 +9,6 @@ import { LOGOUT_USER_SUCCESS } from './user';
 //   return request;
 // });
 
-const PAGE_SIZE = 20;
-
 // ACTION TYPES
 
 const SESSION_CREATE_REQUEST = 'vizyul/session/SESSION_CREATE_REQUEST';
@@ -43,8 +41,8 @@ const reducer = createReducer(initialState, {
   [FILE_UPLOAD_SUCCESS]: (state, action) => {
     console.log('file_upload_success returned action', action);
     return updateObject(state, {
-      sessionAppId: action.response.sessionAppId,
-      uploads: action.response.uploads,
+      sessionAppId: action.response[0].sessionAppId,
+      uploads: action.response,
     });
   },
   [SESSION_CLEAR]: () => initialState,
@@ -104,8 +102,12 @@ export function uploadFiles(userAppId, files) {
     callApi: () =>  {
       return axios.post('/api/session/create', { userAppId})
         .then((session) => {
-          const sessionAppId = session.data.sessionAppId;
+          const sessionAppId = session.data.response.sessionAppId;
           
+          if (!sessionAppId) {
+            throw new Error('session App Id came back undefined');
+          }
+
           const uploaders = files.map(file => {
             const formData = new FormData();
       
@@ -119,15 +121,11 @@ export function uploadFiles(userAppId, files) {
               }
             })
               .then(resp => {
-                return { ...resp.data.response, file: file.name };
+                return { data: { ...resp.data.response, file: file.name, sessionAppId }, status: true };
               });
           });
 
-          return concurrent(uploaders)
-            .then(uploads => {
-              const result = { uploads, sessionAppId };
-              return result;
-            });
+          return concurrent(uploaders);
         });
     },
     payload: { files },

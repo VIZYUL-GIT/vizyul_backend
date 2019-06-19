@@ -5,6 +5,13 @@ import DismissableAlert from '../../components/DismissableAlert';
 import SignedInDisplay from './SignedInDisplay';
 import ServersList from './ServersList';
 
+const ServerPageDisplay = ({ current }) => {
+  if (current) {
+    return (<SignedInDisplay />);
+  }
+  return (<ServersList />);
+};
+
 class ServersPage extends Component {
   componentDidMount() {
     console.log('componentDidMount');
@@ -15,41 +22,14 @@ class ServersPage extends Component {
   }
 
   render() {
-    const {
-      servers, currentServer, tableauWorkbooks, tableauSignin, tableauDataSources,
-      datasources, currentDatasource, tableauDatasourceConnections, setCurrentDatasource,
-      setCurrentDatasourceConnection, currentDatasourceConnection, updateTableauDatasourceConnection,
-      setNotice,
-    } = this.props;
-    console.log('serverspage.currentServer', currentServer);
+    const { currentServer } = this.props;
 
     return (
       <Row>
         <Col>
           <h1>Tableau Servers</h1>
           <DismissableAlert topic="servers" />
-          {currentServer
-            ? (
-              <SignedInDisplay
-                currentServer={currentServer} 
-                tableauWorkbooks={tableauWorkbooks}
-                tableauDataSources={tableauDataSources}
-                datasources={datasources}
-                currentDatasource={currentDatasource}
-                tableauDatasourceConnections={tableauDatasourceConnections}
-                setCurrentDatasource={setCurrentDatasource}
-                setCurrentDatasourceConnection={setCurrentDatasourceConnection}
-                currentDatasourceConnection={currentDatasourceConnection}
-                updateTableauDatasourceConnection={updateTableauDatasourceConnection}
-                setNotice={setNotice}
-              />
-            ) : (
-              <ServersList
-                servers={servers}
-                tableauSignin={tableauSignin}
-              />
-            )
-          }
+          <ServerPageDisplay current={currentServer} />
         </Col>
       </Row>
     );
