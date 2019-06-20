@@ -3,7 +3,7 @@ import React from 'react';
 import { Row, Col, Button, ButtonToolbar } from '../../../components/rb-import';
 import DatasourcesList from '../DatasourcesList';
 
-const SignedInDisplay = ({ tableauWorkbooks, currentServer, tableauDataSources }) => (
+const SignedInDisplay = ({ tableauWorkbooks, currentServer, tableauDataSources, tableauSignout }) => (
   <>
     <Row>
       <Col>
@@ -17,17 +17,24 @@ const SignedInDisplay = ({ tableauWorkbooks, currentServer, tableauDataSources }
         <ButtonToolbar>
           <Button
             className="mr-2"
-            onClick={() => tableauWorkbooks(currentServer.serverId)}
+            onClick={() => tableauWorkbooks(currentServer.serverAppId)}
           >
             Get Workbooks
         </Button>
           <Button
             className="mr-2"
             variant="outline-primary"
-            onClick={() => tableauDataSources(currentServer.serverId)}
+            onClick={() => tableauDataSources(currentServer.serverAppId)}
           >
             Get Datasources
         </Button>
+        <Button
+          className="ml-auto"
+          variant="info"
+          onClick={() => tableauSignout(currentServer.serverAppId)}
+          >
+            Sign Out
+          </Button>
         </ButtonToolbar>
       </Col>
     </Row>

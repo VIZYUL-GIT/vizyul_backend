@@ -20,7 +20,7 @@ const DatasourcesList = ({
             style={{ minWidth: '250px' }}
             id="datasources"
             title={(currentDatasource || {}).name || "Select Datasource"}
-            onSelect={(eventKey) => tableauDatasourceConnections(currentServer.serverId, eventKey)
+            onSelect={(eventKey) => tableauDatasourceConnections(currentServer.serverAppId, eventKey)
               .then(() => setCurrentDatasource(eventKey))
             }
           >

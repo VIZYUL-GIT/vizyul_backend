@@ -18,6 +18,10 @@ const TABLEAU_SERVER_SIGNIN_REQUEST = 'vizyul/tableau/TABLEAU_SERVER_SIGNIN_REQU
 const TABLEAU_SERVER_SIGNIN_SUCCESS = 'vizyul/tableau/TABLEAU_SERVER_SIGNIN_SUCCESS';
 const TABLEAU_SERVER_SIGNIN_FAILURE = 'vizyul/tableau/TABLEAU_SERVER_SIGNIN_FAILURE';
 
+const TABLEAU_SERVER_SIGNOUT_REQUEST = 'vizyul/tableau/TABLEAU_SERVER_SIGNOUT_REQUEST';
+const TABLEAU_SERVER_SIGNOUT_SUCCESS = 'vizyul/tableau/TABLEAU_SERVER_SIGNOUT_SUCCESS';
+const TABLEAU_SERVER_SIGNOUT_FAILURE = 'vizyul/tableau/TABLEAU_SERVER_SIGNOUT_FAILURE';
+
 const TABLEAU_SERVER_WORKBOOKS_REQUEST = 'vizyul/tableau/TABLEAU_SERVER_WORKBOOKS_REQUEST';
 const TABLEAU_SERVER_WORKBOOKS_SUCCESS = 'vizyul/tableau/TABLEAU_SERVER_WORKBOOKS_SUCCESS';
 const TABLEAU_SERVER_WORKBOOKS_FAILURE = 'vizyul/tableau/TABLEAU_SERVER_WORKBOOKS_FAILURE';
@@ -102,8 +106,9 @@ const reducer = createReducer(initialState, {
     });
   },
   [TABLEAU_SERVER_SIGNIN_SUCCESS]: (state, action) => updateObject(state, {
-    currentServer: state.servers.find(server => server.serverId === action.serverAppId),
+    currentServer: state.servers.find(server => server.serverAppId === action.serverAppId),
   }),
+  [TABLEAU_SERVER_SIGNOUT_SUCCESS]: state => _.omit(state, ['currentServer']),
   [TABLEAU_SET_CURRENT_DATASOURCE]: (state, action) => {
     const found = state.datasources.find(ds => ds.id === action.datasourceId);
     console.log('tableau_set_current_datasource', found, found.connections);
@@ -188,6 +193,22 @@ export function tableauSignin(serverAppId) {
     payload: {
       serverAppId,
     },
+  };
+}
+
+export function tableauSignout(serverAppId) {
+  return {
+    types: [
+      TABLEAU_SERVER_SIGNOUT_REQUEST,
+      TABLEAU_SERVER_SIGNOUT_SUCCESS,
+      TABLEAU_SERVER_SIGNOUT_FAILURE,
+    ],
+    callApi: () => axios.post('/api/tableau/signout', {
+      serverAppId,
+    }),
+    payload: {
+      serverAppId,
+    }
   };
 }
 
